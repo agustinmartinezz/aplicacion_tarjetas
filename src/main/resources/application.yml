@@ -1,0 +1,9 @@
+server:
+  port: 7002
+
+spring:
+  datasource:
+    driverClassName: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/tarjetas
+    username: root
+    password: root
