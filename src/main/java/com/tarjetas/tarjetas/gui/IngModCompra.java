@@ -1,8 +1,8 @@
 package com.tarjetas.tarjetas.gui;
 
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.EventQueue;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
@@ -11,10 +11,12 @@ import javax.swing.JTextField;
 import javax.swing.JComboBox;
 import com.toedter.calendar.JDateChooser;
 import com.tarjetas.tarjetas.domain.Compra;
-import com.toedter.calendar.JCalendar;
 import javax.swing.JLabel;
 import java.awt.Font;
 import javax.swing.JButton;
+import javax.swing.ImageIcon;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class IngModCompra extends JFrame {
 
@@ -31,16 +33,17 @@ public class IngModCompra extends JFrame {
 	private JLabel lblTarjeta;
 	private JLabel lblTitulo;
 	private JButton btnAccion;
+	private JLabel lblVolver;
 
 	/**
 	 * Launch the application.
 	*/
 	
-	/*public static void main(String[] args) {
+/*	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					ModificarCompra frame = new ModificarCompra();
+					IngModCompra frame = new IngModCompra(new Compra());
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -53,7 +56,7 @@ public class IngModCompra extends JFrame {
 	 * Create the frame.
 	*/
 	public IngModCompra(Compra compra) {
-		if (compra != null)
+		if (compra.getCompraId() != 0)
 			setTitle("Modificar Compra");
 		else
 			setTitle("Ingresar Compra");
@@ -61,11 +64,43 @@ public class IngModCompra extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 601, 360);
 		contentPane = new JPanel();
+		contentPane.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+			}
+		});
 		contentPane.setBackground(new Color(175, 119, 234));
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 
 		setContentPane(contentPane);
 		contentPane.setLayout(new MigLayout("", "[20%][20%][20%][20%][20%]", "[8.3%][8.3%][8.3%][8.3%][8.3%][8.3%][8.3%][8.3%][8.3%][8.3%][8.3%][8.3%]"));
+		
+		lblVolver = new JLabel("");
+		lblVolver.setIcon(new ImageIcon(IngModCompra.class.getResource("/com/tarjetas/tarjetas/img/arrow.png")));
+		lblVolver.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				try {
+					dispose();
+					PantallaCompras frame = new PantallaCompras();
+					frame.setLocationRelativeTo(null);
+					frame.setVisible(true);
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			}
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				Cursor cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR); 
+			    setCursor(cursor);
+			}
+			@Override
+			public void mouseExited(MouseEvent e) {
+				Cursor cursor = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR); 
+			    setCursor(cursor);
+			}
+		});
+		contentPane.add(lblVolver, "cell 0 0");
 		
 		lblTitulo = new JLabel(this.getTitle());
 		lblTitulo.setFont(new Font("Tahoma", Font.BOLD, 14));

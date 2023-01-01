@@ -59,9 +59,10 @@ public class MenuPrincipal extends JFrame {
         btnCompras.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                    PantallaCompras frame = new PantallaCompras();
-                    frame.setLocationRelativeTo(null);
-                    frame.setVisible(true);
+                dispose();
+                PantallaCompras frame = new PantallaCompras();
+                frame.setLocationRelativeTo(null);
+                frame.setVisible(true);
             }
         });
         btnCompras.setForeground(new Color(0, 0, 0));
@@ -73,7 +74,10 @@ public class MenuPrincipal extends JFrame {
         btnTotales.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-
+                dispose();
+                Totales frame = new Totales();
+                frame.setLocationRelativeTo(null);
+                frame.setVisible(true);
             }
         });
         btnTotales.setForeground(new Color(0, 0, 0));
@@ -85,9 +89,10 @@ public class MenuPrincipal extends JFrame {
         btnTiendas.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (e.getModifiersEx() == 16) {
-
-                }
+                dispose();
+                PantallaTiendas frame = new PantallaTiendas();
+                frame.setLocationRelativeTo(null);
+                frame.setVisible(true);
             }
         });
         btnTiendas.setForeground(new Color(0, 0, 0));
@@ -95,5 +100,4 @@ public class MenuPrincipal extends JFrame {
         btnTiendas.setFocusable(false);
         contentPane.add(btnTiendas, "cell 2 4,alignx center,aligny center");
     }
-
 }

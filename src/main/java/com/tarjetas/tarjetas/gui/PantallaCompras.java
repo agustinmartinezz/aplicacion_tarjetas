@@ -4,13 +4,10 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.EventQueue;
 import java.awt.Toolkit;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-
 import com.tarjetas.tarjetas.domain.Compra;
-
 import javax.swing.JList;
 import net.miginfocom.swing.MigLayout;
 import javax.swing.JComboBox;
@@ -58,7 +55,30 @@ public class PantallaCompras extends JFrame {
 		
 		JLabel lblVolver = new JLabel("");
 		lblVolver.setIcon(new ImageIcon(PantallaCompras.class.getResource("/com/tarjetas/tarjetas/img/arrow.png")));
-		contentPane.add(lblVolver, "cell 0 0");
+		lblVolver.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				try {
+					dispose();
+					MenuPrincipal frame = new MenuPrincipal();
+					frame.setLocationRelativeTo(null);
+					frame.setVisible(true);
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			}
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				Cursor cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR); 
+			    setCursor(cursor);
+			}
+			@Override
+			public void mouseExited(MouseEvent e) {
+				Cursor cursor = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR); 
+			    setCursor(cursor);
+			}
+		});
+		contentPane.add(lblVolver, "cell 0 0,alignx center,aligny center");
 		
 		JComboBox comboBox = new JComboBox();
 		comboBox.setEditable(true);
@@ -69,8 +89,10 @@ public class PantallaCompras extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				try {
+					dispose();
 					Compra compra = new Compra();
 					IngModCompra frame = new IngModCompra(compra);
+					frame.setLocationRelativeTo(null);
 					frame.setVisible(true);
 				} catch (Exception e1) {
 					e1.printStackTrace();
@@ -115,8 +137,10 @@ public class PantallaCompras extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				try {
+					dispose();
 					Compra compra = new Compra();
 					IngModCompra frame = new IngModCompra(compra);
+					frame.setLocationRelativeTo(null);
 					frame.setVisible(true);
 				} catch (Exception e1) {
 					e1.printStackTrace();

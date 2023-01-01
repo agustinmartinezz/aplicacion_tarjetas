@@ -1,6 +1,7 @@
 package com.tarjetas.tarjetas.gui;
 
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
@@ -14,7 +15,11 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import java.awt.Font;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
 import javax.swing.JComboBox;
+import javax.swing.ImageIcon;
 
 public class Totales extends JFrame {
 
@@ -50,6 +55,33 @@ public class Totales extends JFrame {
 
 		setContentPane(contentPane);
 		contentPane.setLayout(new MigLayout("", "[18%][20%,grow][20%,grow][20%][18%]", "[16%][16%][10%][16%][16%][16%]"));
+		
+		JLabel lblVolver = new JLabel("");
+		lblVolver.setIcon(new ImageIcon(Totales.class.getResource("/com/tarjetas/tarjetas/img/arrow.png")));
+		lblVolver.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				try {
+					dispose();
+					MenuPrincipal frame = new MenuPrincipal();
+					frame.setLocationRelativeTo(null);
+					frame.setVisible(true);
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			}
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				Cursor cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR); 
+			    setCursor(cursor);
+			}
+			@Override
+			public void mouseExited(MouseEvent e) {
+				Cursor cursor = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR); 
+			    setCursor(cursor);
+			}
+		});
+		contentPane.add(lblVolver, "cell 0 0,alignx left,aligny top");
 		
 		JComboBox comboBox = new JComboBox();
 		contentPane.add(comboBox, "cell 1 1 3 1,growx");

@@ -14,7 +14,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import com.tarjetas.tarjetas.domain.Compra;
+import com.tarjetas.tarjetas.domain.Tienda;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -54,6 +54,33 @@ public class PantallaTiendas extends JFrame {
 		setContentPane(contentPane);
 		contentPane.setLayout(new MigLayout("", "[10%][60%][10%][10%][10%]", "[20%][20%][20%][20%][20%]"));
 		
+		JLabel lblVolver = new JLabel("");
+		lblVolver.setIcon(new ImageIcon(PantallaTiendas.class.getResource("/com/tarjetas/tarjetas/img/arrow.png")));
+		lblVolver.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				try {
+					dispose();
+					MenuPrincipal frame = new MenuPrincipal();
+					frame.setLocationRelativeTo(null);
+					frame.setVisible(true);
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			}
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				Cursor cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR); 
+			    setCursor(cursor);
+			}
+			@Override
+			public void mouseExited(MouseEvent e) {
+				Cursor cursor = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR); 
+			    setCursor(cursor);
+			}
+		});
+		contentPane.add(lblVolver, "cell 0 0,alignx left,aligny top");
+		
 		JComboBox comboBox = new JComboBox();
 		comboBox.setEditable(true);
 		contentPane.add(comboBox, "cell 1 2,growx");
@@ -63,8 +90,10 @@ public class PantallaTiendas extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				try {
-					Compra compra = new Compra();
-					IngModCompra frame = new IngModCompra(compra);
+					dispose();
+					Tienda tienda = new Tienda();
+					IngModTienda frame = new IngModTienda(tienda);
+					frame.setLocationRelativeTo(null);
 					frame.setVisible(true);
 				} catch (Exception e1) {
 					e1.printStackTrace();
@@ -89,8 +118,10 @@ public class PantallaTiendas extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				try {
-					Compra compra = new Compra();
-					IngModCompra frame = new IngModCompra(compra);
+					dispose();
+					Tienda tienda = new Tienda();
+					IngModTienda frame = new IngModTienda(tienda);
+					frame.setLocationRelativeTo(null);
 					frame.setVisible(true);
 				} catch (Exception e1) {
 					e1.printStackTrace();
