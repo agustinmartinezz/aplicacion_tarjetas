@@ -1,8 +1,6 @@
 package com.tarjetas.tarjetas.gui;
 
-import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.EventQueue;
+import java.awt.*;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
@@ -12,7 +10,6 @@ import javax.swing.JComboBox;
 import com.toedter.calendar.JDateChooser;
 import com.tarjetas.tarjetas.domain.Compra;
 import javax.swing.JLabel;
-import java.awt.Font;
 import javax.swing.JButton;
 import javax.swing.ImageIcon;
 import java.awt.event.MouseAdapter;
@@ -69,6 +66,7 @@ public class IngModCompra extends JFrame {
 			public void mouseClicked(MouseEvent e) {
 			}
 		});
+		setIconImage(Toolkit.getDefaultToolkit().getImage(IngModCompra.class.getResource("/com/tarjetas/tarjetas/img/appImage.png")));
 		contentPane.setBackground(new Color(175, 119, 234));
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 

@@ -36,6 +36,10 @@ public class TiendasAPI implements ITiendas {
             tiendas.add(tiendaAux);
         }
 
+        con.close();
+        stmt.close();
+        rs.close();
+
         return tiendas;
     }
 

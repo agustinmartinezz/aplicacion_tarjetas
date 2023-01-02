@@ -10,4 +10,9 @@ import lombok.NoArgsConstructor;
 public class Tienda {
     private int tiendaId;
     private String tiendaNombre;
+
+    public String toString() {
+        String string = tiendaId + " - " + tiendaNombre;
+        return string;
+    }
 }

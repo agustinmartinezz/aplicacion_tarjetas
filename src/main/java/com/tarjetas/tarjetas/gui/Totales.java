@@ -1,23 +1,31 @@
 package com.tarjetas.tarjetas.gui;
 
-import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.EventQueue;
-
+import java.awt.*;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tarjetas.tarjetas.domain.Banco;
+import com.tarjetas.tarjetas.domain.Persona;
+import com.tarjetas.tarjetas.domain.Tarjeta;
+import com.tarjetas.tarjetas.infrastructure.RestRepository;
 import com.toedter.calendar.JYearChooser;
 import net.miginfocom.swing.MigLayout;
 import com.toedter.calendar.JMonthChooser;
-import com.toedter.calendar.JDayChooser;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.web.client.ResponseErrorHandler;
+import org.springframework.web.client.RestTemplate;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
-import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-
+import java.io.IOException;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JComboBox;
 import javax.swing.ImageIcon;
 
@@ -46,10 +54,28 @@ public class Totales extends JFrame {
 	 * Create the frame.
 	 */
 	public Totales() {
+		RestTemplate restTemplate = newRestTemplate();
+		RestRepository restRepository = new RestRepository(restTemplate);
+
+		ObjectMapper objectMapper = new ObjectMapper();
+
+		List<Tarjeta> tarjetas = new ArrayList<Tarjeta>();
+		List<Banco> bancos = new ArrayList<Banco>();
+		List<Persona> personas = new ArrayList<Persona>();
+
+		try {
+			tarjetas = objectMapper.readValue(restRepository.getTarjetas(), new TypeReference<>(){});
+			bancos = objectMapper.readValue(restRepository.getBancos(), new TypeReference<>(){});
+			personas = objectMapper.readValue(restRepository.getPersonas(), new TypeReference<>(){});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 		setTitle("Totales");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
+		setIconImage(Toolkit.getDefaultToolkit().getImage(Totales.class.getResource("/com/tarjetas/tarjetas/img/appImage.png")));
 		contentPane.setBackground(new Color(175, 119, 234));
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 
@@ -85,7 +111,39 @@ public class Totales extends JFrame {
 		
 		JComboBox comboBox = new JComboBox();
 		contentPane.add(comboBox, "cell 1 1 3 1,growx");
-		
+
+
+		//Recorro las tarjetas  para cargarlas en el combo
+		for (Tarjeta tarjeta : tarjetas) {
+			String tarjetaDescripcion = String.valueOf(tarjeta.getTarjetaId());
+
+			boolean encontre = false;
+			int i = 0;
+
+			while (!encontre && i < bancos.size()) {
+				if (bancos.get(i).getBancoId() == tarjeta.getBancoId()) {
+					encontre = true;
+					tarjetaDescripcion += " - " + bancos.get(i).getBancoNombre();
+				} else {
+					i++;
+				}
+			}
+
+			encontre = false;
+			i = 0;
+
+			while (!encontre && i < personas.size()) {
+				if (personas.get(i).getPersonaId() == tarjeta.getPersonaId()) {
+					encontre = true;
+					tarjetaDescripcion += " - " + personas.get(i).getPersonaNombre() + " " + personas.get(i).getPersonaApellido();
+				} else {
+					i++;
+				}
+			}
+
+			comboBox.addItem(tarjetaDescripcion);
+		}
+
 		JMonthChooser monthChooser = new JMonthChooser();
 		contentPane.add(monthChooser, "cell 1 2,grow");
 		
@@ -107,4 +165,21 @@ public class Totales extends JFrame {
 		textField.setColumns(10);
 	}
 
+	private RestTemplate newRestTemplate(){
+		return new RestTemplateBuilder()
+				.errorHandler(new ResponseErrorHandler() {
+					@Override
+					public boolean hasError(ClientHttpResponse response) throws IOException {
+						return false;
+					}
+
+					@Override
+					public void handleError(ClientHttpResponse response) throws IOException {
+
+					}
+				})
+				.setConnectTimeout(Duration.ofSeconds(2))
+				.setReadTimeout(Duration.ofSeconds(20))
+				.build();
+	}
 }

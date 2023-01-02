@@ -1,8 +1,6 @@
 package com.tarjetas.tarjetas.gui;
 
-import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.EventQueue;
+import java.awt.*;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -14,7 +12,6 @@ import net.miginfocom.swing.MigLayout;
 import javax.swing.JLabel;
 import javax.swing.JButton;
 import javax.swing.JTextField;
-import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.ImageIcon;
@@ -53,6 +50,7 @@ public class IngModTienda extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
+		setIconImage(Toolkit.getDefaultToolkit().getImage(IngModTienda.class.getResource("/com/tarjetas/tarjetas/img/appImage.png")));
 		contentPane.setBackground(new Color(175, 119, 234));
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 

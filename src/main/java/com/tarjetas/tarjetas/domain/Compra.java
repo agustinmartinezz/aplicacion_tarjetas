@@ -16,4 +16,9 @@ public class Compra {
     private int compraCuotas;
     private int tiendaId;
     private  int tarjetaId;
+
+    public String toString() {
+        String string = compraId + " - " + compraDescripcion + " - " + compraFecha.toString() + " - $" + compraMonto;
+        return string;
+    }
 }
