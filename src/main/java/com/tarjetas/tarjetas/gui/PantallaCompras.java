@@ -3,8 +3,7 @@ package com.tarjetas.tarjetas.gui;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Toolkit;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,21 +12,13 @@ import com.tarjetas.tarjetas.domain.Compra;
 import com.tarjetas.tarjetas.domain.Tienda;
 import com.tarjetas.tarjetas.infrastructure.RestRepository;
 import net.miginfocom.swing.MigLayout;
-import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.http.client.ClientHttpResponse;
-import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.ImageIcon;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.IOException;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
+import static com.tarjetas.tarjetas.infrastructure.DependencyRestTemplate.newRestTemplate;
 
 public class PantallaCompras extends JFrame {
 
@@ -70,6 +61,10 @@ public class PantallaCompras extends JFrame {
 			e.printStackTrace();
 			//TODO: Desarrollar un popup de error
 		}
+
+		/*Variable auxiliar para poder usar el filter*/
+		List<Compra> finalCompras = comprasIngresadas;
+		/*-------------------------------------------*/
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 550, 200);
@@ -115,47 +110,18 @@ public class PantallaCompras extends JFrame {
 		JComboBox<String> comboBox = new JComboBox<String>();
 		comboBox.setEditable(true);
 		contentPane.add(comboBox, "cell 1 2,growx");
-
-		//Recorro las compras ingresadas para cargarlas en el combo
-		for (Compra compra : comprasIngresadas) {
-			String item = compra.toString();
-
-			String tiendaDescripcion = "";
-			boolean encontre = false;
-			int i = 0;
-
-			//Busco el nombre de la tienda de la compra en la lista cargada al principio
-			while (!encontre && i < tiendas.size()) {
-				if (tiendas.get(i).getTiendaId() == compra.getTiendaId()) {
-					encontre = true;
-					tiendaDescripcion = tiendas.get(i).getTiendaNombre();
-				} else {
-					i++;
-				}
-			}
-
-			item += " - " + tiendaDescripcion;
-			comboBox.addItem(item);
-		}
+		cargarComboBox(comboBox, comprasIngresadas, tiendas);
 
 		JLabel lblModificar = new JLabel("");
-		/*Variable auxiliar para poder usar el filter*/
-		List<Compra> finalCompras = comprasIngresadas;
-		/*-------------------------------------------*/
 		lblModificar.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				try {
 					//Obtengo el texto del item seleccionado del combo
-					String text = (String) comboBox.getSelectedItem();
+					String compraTxt = (String) comboBox.getSelectedItem();
 
-					//Busco en las compras ingresadas la que tiene el id de la que seleccione
-					List<Compra> compra = finalCompras.stream()
-							.filter(c -> c.getCompraId() == Integer.parseInt(text.substring(0,text.indexOf(' '))))
-							.collect(Collectors.toList());
-
-					//Creo el frame de modificar con el objeto de la compra que seleccione
-					IngModCompra frame = new IngModCompra(compra.get(0));
+					//Creo el frame de modificar con la compra seleccionada
+					IngModCompra frame = new IngModCompra(Objects.requireNonNull(getCompraSeleccionada(compraTxt, finalCompras)));
 
 					frame.setLocationRelativeTo(null);
 					frame.setVisible(true);
@@ -177,14 +143,29 @@ public class PantallaCompras extends JFrame {
 				setCursor(cursor);
 			}
 		});
-		lblModificar.setIcon(new ImageIcon(PantallaCompras.class.getResource("/com/tarjetas/tarjetas/img/edit.png")));
+		lblModificar.setIcon(new ImageIcon(Objects.requireNonNull(PantallaCompras.class.getResource("/com/tarjetas/tarjetas/img/edit.png"))));
 		contentPane.add(lblModificar, "cell 2 2,alignx center");
 
 		JLabel lblEliminar = new JLabel("");
 		lblEliminar.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				/*LOGICA PARA ELIMINAR COMPRA SELECCIONADA*/
+				//Obtengo el texto del item seleccionado del combo
+				String compraTxt = (String) comboBox.getSelectedItem();
+
+				restRepository.eliminarCompra(getCompraSeleccionada(compraTxt, finalCompras));
+
+				//Recargo el combo box con las compras
+				try {
+					List<Tienda> tiendasAux = objectMapper.readValue(restRepository.getTiendas(), new TypeReference<>(){});
+					List<Compra> comprasIngresadasAux = objectMapper.readValue(restRepository.getCompras(), new TypeReference<>(){});
+
+					comboBox.removeAllItems();
+					cargarComboBox(comboBox, comprasIngresadasAux, tiendasAux);
+				} catch (Exception e1) {
+					e1.printStackTrace();
+					//TODO: Desarrollar un popup de error
+				}
 			}
 
 			@Override
@@ -199,7 +180,7 @@ public class PantallaCompras extends JFrame {
 				setCursor(cursor);
 			}
 		});
-		lblEliminar.setIcon(new ImageIcon(PantallaCompras.class.getResource("/com/tarjetas/tarjetas/img/delete.png")));
+		lblEliminar.setIcon(new ImageIcon(Objects.requireNonNull(PantallaCompras.class.getResource("/com/tarjetas/tarjetas/img/delete.png"))));
 		contentPane.add(lblEliminar, "cell 3 2,alignx center");
 
 		JLabel lblAgregar = new JLabel("");
@@ -229,25 +210,46 @@ public class PantallaCompras extends JFrame {
 				setCursor(cursor);
 			}
 		});
-		lblAgregar.setIcon(new ImageIcon(PantallaCompras.class.getResource("/com/tarjetas/tarjetas/img/add.png")));
+		lblAgregar.setIcon(new ImageIcon(Objects.requireNonNull(PantallaCompras.class.getResource("/com/tarjetas/tarjetas/img/add.png"))));
 		contentPane.add(lblAgregar, "cell 4 2,alignx center");
 	}
 
-	private RestTemplate newRestTemplate(){
-		return new RestTemplateBuilder()
-				.errorHandler(new ResponseErrorHandler() {
-					@Override
-					public boolean hasError(ClientHttpResponse response) throws IOException {
-						return false;
-					}
+	private Compra getCompraSeleccionada(String compraTxt, List<Compra> finalCompras) {
+		try {
+			//Busco en las compras ingresadas la que tiene el id de la que seleccione
+			List<Compra> compra = finalCompras.stream()
+					.filter(c -> c.getCompraId() == Integer.parseInt(compraTxt.substring(0,compraTxt.indexOf(' '))))
+					.toList();
 
-					@Override
-					public void handleError(ClientHttpResponse response) throws IOException {
+			//Creo el frame de modificar con el objeto de la compra que seleccione
+			return  compra.get(0);
+		} catch (Exception e1) {
+			e1.printStackTrace();
+			return null;
+		}
+	}
 
-					}
-				})
-				.setConnectTimeout(Duration.ofSeconds(2))
-				.setReadTimeout(Duration.ofSeconds(20))
-				.build();
+	private void cargarComboBox(JComboBox comboBox, List<Compra> comprasIngresadas, List<Tienda> tiendas){
+		//Recorro las compras ingresadas para cargarlas en el combo
+		for (Compra compra : comprasIngresadas) {
+			String item = compra.toString();
+
+			String tiendaDescripcion = "";
+			boolean encontre = false;
+			int i = 0;
+
+			//Busco el nombre de la tienda de la compra en la lista cargada al principio
+			while (!encontre && i < tiendas.size()) {
+				if (tiendas.get(i).getTiendaId() == compra.getTiendaId()) {
+					encontre = true;
+					tiendaDescripcion = tiendas.get(i).getTiendaNombre();
+				} else {
+					i++;
+				}
+			}
+
+			item += " - " + tiendaDescripcion;
+			comboBox.addItem(item);
+		}
 	}
 }

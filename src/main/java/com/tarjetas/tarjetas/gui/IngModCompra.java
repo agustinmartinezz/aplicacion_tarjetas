@@ -14,6 +14,7 @@ import javax.swing.JButton;
 import javax.swing.ImageIcon;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Objects;
 
 public class IngModCompra extends JFrame {
 
@@ -74,7 +75,7 @@ public class IngModCompra extends JFrame {
 		contentPane.setLayout(new MigLayout("", "[20%][20%][20%][20%][20%]", "[8.3%][8.3%][8.3%][8.3%][8.3%][8.3%][8.3%][8.3%][8.3%][8.3%][8.3%][8.3%]"));
 		
 		lblVolver = new JLabel("");
-		lblVolver.setIcon(new ImageIcon(IngModCompra.class.getResource("/com/tarjetas/tarjetas/img/arrow.png")));
+		lblVolver.setIcon(new ImageIcon(Objects.requireNonNull(IngModCompra.class.getResource("/com/tarjetas/tarjetas/img/arrow.png"))));
 		lblVolver.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {

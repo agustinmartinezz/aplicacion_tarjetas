@@ -1,25 +1,26 @@
 package com.tarjetas.tarjetas.gui;
 
 import java.awt.*;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-
 import com.tarjetas.tarjetas.domain.Tienda;
-
+import com.tarjetas.tarjetas.infrastructure.RestRepository;
 import net.miginfocom.swing.MigLayout;
+import org.springframework.web.client.RestTemplate;
 import javax.swing.JLabel;
 import javax.swing.JButton;
 import javax.swing.JTextField;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Objects;
 import javax.swing.ImageIcon;
+import static com.tarjetas.tarjetas.infrastructure.DependencyRestTemplate.newRestTemplate;
 
 public class IngModTienda extends JFrame {
 
 	private JPanel contentPane;
-	private JTextField textField;
+	private JTextField txtTiendaNombre;
 
 	/**
 	 * Launch the application.
@@ -46,6 +47,9 @@ public class IngModTienda extends JFrame {
 			setTitle("Modificar Tienda");
 		else
 			setTitle("Ingresar Tienda");
+
+		RestTemplate restTemplate = newRestTemplate();
+		RestRepository restRepository = new RestRepository(restTemplate);
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
@@ -58,7 +62,7 @@ public class IngModTienda extends JFrame {
 		contentPane.setLayout(new MigLayout("", "[20%][20%][20%][20%][20%]", "[25%][25%][25%][25%]"));
 		
 		JLabel lblVolver = new JLabel("");
-		lblVolver.setIcon(new ImageIcon(IngModTienda.class.getResource("/com/tarjetas/tarjetas/img/arrow.png")));
+		lblVolver.setIcon(new ImageIcon(Objects.requireNonNull(IngModTienda.class.getResource("/com/tarjetas/tarjetas/img/arrow.png"))));
 		lblVolver.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -91,19 +95,27 @@ public class IngModTienda extends JFrame {
 		JLabel lblNombre = new JLabel("Nombre");
 		lblNombre.setFont(new Font("Tahoma", Font.BOLD, 12));
 		contentPane.add(lblNombre, "cell 1 1");
-		
-		textField = new JTextField();
-		contentPane.add(textField, "cell 2 1 2 1,growx");
-		textField.setColumns(10);
+
+		txtTiendaNombre = new JTextField();
+		contentPane.add(txtTiendaNombre, "cell 2 1 2 1,growx");
+		txtTiendaNombre.setText(tienda.getTiendaNombre());
+		txtTiendaNombre.setColumns(10);
 		
 		JButton btnAccion = new JButton("Ingresar");
 		btnAccion.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				tienda.setTiendaNombre(txtTiendaNombre.getText());
+
+				if (tienda.getTiendaId() != 0)
+					restRepository.modificarTienda(tienda);
+				else
+					restRepository.ingresarTienda(tienda);
+
+				//TODO: Desarrollar popup para ingreso-modificacion correcto.
 			}
 		});
 		btnAccion.setFocusable(false);
 		contentPane.add(btnAccion, "cell 2 2,alignx center,aligny center");
 	}
-
 }

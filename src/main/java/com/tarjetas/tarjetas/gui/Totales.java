@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import javax.swing.JComboBox;
 import javax.swing.ImageIcon;
 
@@ -83,7 +84,7 @@ public class Totales extends JFrame {
 		contentPane.setLayout(new MigLayout("", "[18%][20%,grow][20%,grow][20%][18%]", "[16%][16%][10%][16%][16%][16%]"));
 		
 		JLabel lblVolver = new JLabel("");
-		lblVolver.setIcon(new ImageIcon(Totales.class.getResource("/com/tarjetas/tarjetas/img/arrow.png")));
+		lblVolver.setIcon(new ImageIcon(Objects.requireNonNull(Totales.class.getResource("/com/tarjetas/tarjetas/img/arrow.png"))));
 		lblVolver.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -109,7 +110,7 @@ public class Totales extends JFrame {
 		});
 		contentPane.add(lblVolver, "cell 0 0,alignx left,aligny top");
 		
-		JComboBox comboBox = new JComboBox();
+		JComboBox<String> comboBox = new JComboBox<String>();
 		contentPane.add(comboBox, "cell 1 1 3 1,growx");
 
 
