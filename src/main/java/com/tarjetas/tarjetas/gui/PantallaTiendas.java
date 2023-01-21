@@ -20,6 +20,8 @@ import com.tarjetas.tarjetas.domain.Tienda;
 import com.tarjetas.tarjetas.infrastructure.RestRepository;
 import net.miginfocom.swing.MigLayout;
 import org.springframework.web.client.RestTemplate;
+
+import static com.tarjetas.tarjetas.gui.MenuPrincipal.*;
 import static com.tarjetas.tarjetas.infrastructure.DependencyRestTemplate.newRestTemplate;
 
 public class PantallaTiendas extends JFrame {
@@ -99,13 +101,13 @@ public class PantallaTiendas extends JFrame {
 		});
 		contentPane.add(lblVolver, "cell 0 0,alignx left,aligny top");
 		
-		JComboBox<String> comboBox = new JComboBox<>();
-		comboBox.setEditable(true);
+		JComboBox<String> cboTiendas = new JComboBox<>();
+		cboTiendas.setEditable(true);
 		//Recorro las tiendas ingresadas para cargarlas en el combo
 		for (Tienda tienda : tiendasIngresadas) {
-			comboBox.addItem(tienda.toString());
+			cboTiendas.addItem(tienda.toString());
 		}
-		contentPane.add(comboBox, "cell 1 2,growx");
+		contentPane.add(cboTiendas, "cell 1 2,growx");
 		
 		JLabel lblModificar = new JLabel("");
 		/*Variable auxiliar para poder usar el filter*/
@@ -116,18 +118,10 @@ public class PantallaTiendas extends JFrame {
 			public void mouseClicked(MouseEvent e) {
 				try {
 					//Obtengo el texto del item seleccionado del combo
-					String text = (String) comboBox.getSelectedItem();
-
-					//Busco en las compras ingresadas la que tiene el id de la que seleccione
-					List<Tienda> tienda = finalTiendas.stream()
-							.filter(t -> {
-								assert text != null;
-								return t.getTiendaId() == Integer.parseInt(text.substring(0,text.indexOf(' ')));
-							})
-							.toList();
+					String tiendaTxt = (String) cboTiendas.getSelectedItem();
 
 					//Creo el frame de modificar con el objeto de la compra que seleccione
-					IngModTienda frame = new IngModTienda(tienda.get(0));
+					IngModTienda frame = new IngModTienda(getTiendaSeleccionada(tiendaTxt, finalTiendas));
 
 					frame.setLocationRelativeTo(null);
 					frame.setVisible(true);

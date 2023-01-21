@@ -1,28 +1,34 @@
 package com.tarjetas.tarjetas.gui;
 
 import java.awt.*;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tarjetas.tarjetas.domain.*;
+import com.tarjetas.tarjetas.infrastructure.RestRepository;
 import net.miginfocom.swing.MigLayout;
-import javax.swing.JTextField;
-import javax.swing.JComboBox;
 import com.toedter.calendar.JDateChooser;
-import com.tarjetas.tarjetas.domain.Compra;
-import javax.swing.JLabel;
-import javax.swing.JButton;
-import javax.swing.ImageIcon;
+import org.springframework.web.client.RestTemplate;
+import javax.swing.text.PlainDocument;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.Objects;
+
+import static com.tarjetas.tarjetas.gui.MenuPrincipal.*;
+import static com.tarjetas.tarjetas.infrastructure.DependencyRestTemplate.newRestTemplate;
 
 public class IngModCompra extends JFrame {
 
 	private JPanel contentPane;
-	private JTextField textField;
-	private JTextField textField_1;
-	private JTextField textField_2;
-	private JDateChooser dateChooser;
+	private JTextField txtDescripcion;
+	private JTextField txtMonto;
+	private JTextField txtCuotas;
+	private JDateChooser dteFecha;
 	private JLabel lblDescripcion;
 	private JLabel lblMonto;
 	private JLabel lblFecha;
@@ -58,7 +64,27 @@ public class IngModCompra extends JFrame {
 			setTitle("Modificar Compra");
 		else
 			setTitle("Ingresar Compra");
-		
+
+		RestTemplate restTemplate = newRestTemplate();
+		RestRepository restRepository = new RestRepository(restTemplate);
+
+		ObjectMapper objectMapper = new ObjectMapper();
+
+		List<Tarjeta> tarjetas = new ArrayList<Tarjeta>();
+		List<Banco> bancos = new ArrayList<Banco>();
+		List<Persona> personas = new ArrayList<Persona>();
+		List<Tienda> tiendas = new ArrayList<>();
+
+		try {
+			tiendas = objectMapper.readValue(restRepository.getTiendas(), new TypeReference<>(){});
+			tarjetas = objectMapper.readValue(restRepository.getTarjetas(), new TypeReference<>(){});
+			bancos = objectMapper.readValue(restRepository.getBancos(), new TypeReference<>(){});
+			personas = objectMapper.readValue(restRepository.getPersonas(), new TypeReference<>(){});
+		} catch (Exception e) {
+			e.printStackTrace();
+			//TODO: Desarrollar un popup de error
+		}
+
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 601, 360);
 		contentPane = new JPanel();
@@ -109,50 +135,160 @@ public class IngModCompra extends JFrame {
 		lblDescripcion.setFont(new Font("Tahoma", Font.BOLD, 12));
 		contentPane.add(lblDescripcion, "cell 1 3");
 		
-		textField = new JTextField();
-		contentPane.add(textField, "cell 2 3,growx");
-		textField.setColumns(10);
+		txtDescripcion = new JTextField();
+		contentPane.add(txtDescripcion, "cell 2 3,growx");
+		txtDescripcion.setColumns(10);
 		
 		lblMonto = new JLabel("Monto");
 		lblMonto.setFont(new Font("Tahoma", Font.BOLD, 12));
 		contentPane.add(lblMonto, "cell 1 4");
 		
-		textField_1 = new JTextField();
-		contentPane.add(textField_1, "cell 2 4,growx");
-		textField_1.setColumns(10);
+		txtMonto = new JTextField();
+		contentPane.add(txtMonto, "cell 2 4,growx");
+		txtMonto.setColumns(10);
 		
 		lblFecha = new JLabel("Fecha");
 		lblFecha.setFont(new Font("Tahoma", Font.BOLD, 12));
 		contentPane.add(lblFecha, "cell 1 5");
 		
-		dateChooser = new JDateChooser();
-		contentPane.add(dateChooser, "cell 2 5,growx");
+		dteFecha = new JDateChooser();
+		contentPane.add(dteFecha, "cell 2 5,growx");
 		
 		lblCuotas = new JLabel("Cuotas");
 		lblCuotas.setFont(new Font("Tahoma", Font.BOLD, 12));
 		contentPane.add(lblCuotas, "cell 1 6");
 		
-		textField_2 = new JTextField();
-		contentPane.add(textField_2, "cell 2 6,growx");
-		textField_2.setColumns(10);
-		
+		txtCuotas = new JTextField();
+		PlainDocument doc = (PlainDocument) txtCuotas.getDocument();
+		contentPane.add(txtCuotas, "cell 2 6,growx");
+		txtCuotas.setColumns(10);
+
 		lblTienda = new JLabel("Tienda");
 		lblTienda.setFont(new Font("Tahoma", Font.BOLD, 12));
 		contentPane.add(lblTienda, "cell 1 7");
 		
-		JComboBox comboBox = new JComboBox();
-		contentPane.add(comboBox, "cell 2 7 2 1,growx");
+		JComboBox cboTiendas = new JComboBox();
+		cboTiendas.setEditable(true);
+		//Recorro las tiendas ingresadas para cargarlas en el combo
+		for (Tienda tienda : tiendas) {
+			cboTiendas.addItem(tienda.toString());
+		}
+		contentPane.add(cboTiendas, "cell 2 7 2 1,growx");
 		
 		lblTarjeta = new JLabel("Tarjeta");
 		lblTarjeta.setFont(new Font("Tahoma", Font.BOLD, 12));
 		contentPane.add(lblTarjeta, "cell 1 8");
 		
-		JComboBox comboBox_1 = new JComboBox();
-		contentPane.add(comboBox_1, "cell 2 8 2 1,growx");
-		
+		JComboBox cboTarjetas = new JComboBox();
+		//Recorro las tarjetas  para cargarlas en el combo
+		for (Tarjeta tarjeta : tarjetas) {
+			cboTarjetas.addItem(armarTarjetaDescripcion(tarjeta,bancos,personas));
+		}
+		contentPane.add(cboTarjetas, "cell 2 8 2 1,growx");
+
+		List<Tienda> finalTiendas = tiendas;
+		List<Tarjeta> finalTarjetas = tarjetas;
+
 		btnAccion = new JButton("Ingresar");
 		btnAccion.setFocusable(false);
+		btnAccion.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				compra.setCompraDescripcion(txtDescripcion.getText());
+				compra.setCompraMonto(Double.parseDouble(txtMonto.getText()));
+				compra.setCompraFecha(dteFecha.getDate().toInstant()
+						.atZone(ZoneId.systemDefault())
+						.toLocalDate());
+				compra.setCompraCuotas(Integer.parseInt(txtCuotas.getText()));
+
+				Tienda tiendaSeleccionada = getTiendaSeleccionada((String) cboTiendas.getSelectedItem(), finalTiendas);
+				compra.setTiendaId(tiendaSeleccionada.getTiendaId());
+
+				Tarjeta tarjetaSeleccionada = getTarjetaSeleccionada((String) cboTarjetas.getSelectedItem(), finalTarjetas);
+				compra.setTarjetaId(tarjetaSeleccionada.getTarjetaId());
+
+				String msgConfirm = compra.getCompraDescripcion() + " \n$" + compra.getCompraMonto() + " \n" + compra.getCompraFecha() + " \nCuotas " + compra.getCompraCuotas() + " \n" + cboTiendas.getSelectedItem() + " \n" + cboTarjetas.getSelectedItem();
+
+				int input = JOptionPane.showConfirmDialog(null,
+						msgConfirm, "Confirmar Compra",JOptionPane.OK_CANCEL_OPTION);
+
+				if (input == 0) {
+					if (compra.getCompraId() != 0) {
+						restRepository.modificarCompra(compra);
+						JOptionPane.showMessageDialog(null,"Compra Modificada Correctamente.","Atencion",JOptionPane.INFORMATION_MESSAGE);
+					} else {
+						restRepository.ingresarCompra(compra);
+						JOptionPane.showMessageDialog(null,"Compra Ingresada Correctamente.","Atencion",JOptionPane.INFORMATION_MESSAGE);
+					}
+
+					dispose();
+					PantallaCompras frame = new PantallaCompras();
+					frame.setLocationRelativeTo(null);
+					frame.setVisible(true);
+				}
+			}
+		});
 		contentPane.add(btnAccion, "cell 2 10,alignx center,aligny center");
+
+		if (compra.getCompraId() != 0 ) {
+			txtDescripcion.setText(compra.getCompraDescripcion());
+			txtMonto.setText(String.valueOf(compra.getCompraMonto()));
+
+			//CODIGO COPIADO PARA PASAR DE LOCALDATE A DATE
+			ZoneId defaultZoneId = ZoneId.systemDefault();
+			Date date = Date.from(compra.getCompraFecha().atStartOfDay(defaultZoneId).toInstant());
+			dteFecha.setDate(date);
+
+			txtCuotas.setText(String.valueOf(compra.getCompraCuotas()));
+
+			List<Tienda> tienda = tiendas.stream()
+					.filter(t -> {
+						assert compra.getTiendaId() != 0;
+						return t.getTiendaId() == compra.getTiendaId();
+					})
+					.toList();
+
+			List<Tarjeta> tarjeta = tarjetas.stream()
+					.filter(t -> {
+						assert compra.getTarjetaId() != 0;
+						return t.getTarjetaId() == compra.getTarjetaId();
+					})
+					.toList();
+
+			System.out.println(tarjeta.get(0).toString());
+
+			cboTiendas.setSelectedItem(tienda.get(0).toString());
+			cboTarjetas.setSelectedItem(armarTarjetaDescripcion(tarjeta.get(0),bancos,personas));
+		}
 	}
 
+	private String armarTarjetaDescripcion(Tarjeta tarjeta, List<Banco> bancos, List<Persona> personas) {
+		String tarjetaDescripcion = String.valueOf(tarjeta.getTarjetaId());
+
+		boolean encontre = false;
+		int i = 0;
+
+		while (!encontre && i < bancos.size()) {
+			if (bancos.get(i).getBancoId() == tarjeta.getBancoId()) {
+				encontre = true;
+				tarjetaDescripcion += " - " + bancos.get(i).getBancoNombre();
+			} else {
+				i++;
+			}
+		}
+
+		encontre = false;
+		i = 0;
+
+		while (!encontre && i < personas.size()) {
+			if (personas.get(i).getPersonaId() == tarjeta.getPersonaId()) {
+				encontre = true;
+				tarjetaDescripcion += " - " + personas.get(i).getPersonaNombre() + " " + personas.get(i).getPersonaApellido();
+			} else {
+				i++;
+			}
+		}
+
+		return tarjetaDescripcion;
+	}
 }

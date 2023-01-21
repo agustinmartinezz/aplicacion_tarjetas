@@ -1,20 +1,17 @@
 package com.tarjetas.tarjetas.gui;
 
 import java.awt.*;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import com.tarjetas.tarjetas.domain.Tienda;
 import com.tarjetas.tarjetas.infrastructure.RestRepository;
 import net.miginfocom.swing.MigLayout;
 import org.springframework.web.client.RestTemplate;
-import javax.swing.JLabel;
-import javax.swing.JButton;
-import javax.swing.JTextField;
+
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Objects;
-import javax.swing.ImageIcon;
+
 import static com.tarjetas.tarjetas.infrastructure.DependencyRestTemplate.newRestTemplate;
 
 public class IngModTienda extends JFrame {
@@ -50,7 +47,7 @@ public class IngModTienda extends JFrame {
 
 		RestTemplate restTemplate = newRestTemplate();
 		RestRepository restRepository = new RestRepository(restTemplate);
-		
+
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
@@ -98,7 +95,6 @@ public class IngModTienda extends JFrame {
 
 		txtTiendaNombre = new JTextField();
 		contentPane.add(txtTiendaNombre, "cell 2 1 2 1,growx");
-		txtTiendaNombre.setText(tienda.getTiendaNombre());
 		txtTiendaNombre.setColumns(10);
 		
 		JButton btnAccion = new JButton("Ingresar");
@@ -107,15 +103,30 @@ public class IngModTienda extends JFrame {
 			public void mouseClicked(MouseEvent e) {
 				tienda.setTiendaNombre(txtTiendaNombre.getText());
 
-				if (tienda.getTiendaId() != 0)
-					restRepository.modificarTienda(tienda);
-				else
-					restRepository.ingresarTienda(tienda);
+				int input = JOptionPane.showConfirmDialog(null,
+						"Nombre: " + txtTiendaNombre.getText(), "Confirmar Tienda",JOptionPane.OK_CANCEL_OPTION);
 
-				//TODO: Desarrollar popup para ingreso-modificacion correcto.
+				if (input == 0) {
+					if (tienda.getTiendaId() != 0) {
+						restRepository.modificarTienda(tienda);
+						JOptionPane.showMessageDialog(null,"Tienda Modificada Correctamente.","Atencion",JOptionPane.INFORMATION_MESSAGE);
+					} else {
+						restRepository.ingresarTienda(tienda);
+						JOptionPane.showMessageDialog(null,"Tienda Ingresada Correctamente.","Atencion",JOptionPane.INFORMATION_MESSAGE);
+					}
+
+					dispose();
+					PantallaTiendas frame = new PantallaTiendas();
+					frame.setLocationRelativeTo(null);
+					frame.setVisible(true);
+				}
 			}
 		});
 		btnAccion.setFocusable(false);
 		contentPane.add(btnAccion, "cell 2 2,alignx center,aligny center");
+
+		if (tienda.getTiendaId() != 0) {
+			txtTiendaNombre.setText(tienda.getTiendaNombre());
+		}
 	}
 }

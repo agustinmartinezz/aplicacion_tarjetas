@@ -6,6 +6,10 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JButton;
+
+import com.tarjetas.tarjetas.domain.Compra;
+import com.tarjetas.tarjetas.domain.Tarjeta;
+import com.tarjetas.tarjetas.domain.Tienda;
 import net.miginfocom.swing.MigLayout;
 import javax.swing.JLabel;
 import java.awt.Font;
@@ -13,6 +17,7 @@ import java.awt.Color;
 import java.awt.Toolkit;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.List;
 
 public class MenuPrincipal extends JFrame {
 
@@ -99,5 +104,41 @@ public class MenuPrincipal extends JFrame {
         btnTiendas.setFont(new Font("Tahoma", Font.BOLD, 12));
         btnTiendas.setFocusable(false);
         contentPane.add(btnTiendas, "cell 2 4,alignx center,aligny center");
+    }
+
+    public static Compra getCompraSeleccionada(String compraTxt, List<Compra> compras) {
+        //Busco en las compras ingresadas la que tiene el id de la que seleccione
+        List<Compra> compra = compras.stream()
+                .filter(t -> {
+                    assert compraTxt != null;
+                    return t.getCompraId() == Integer.parseInt(compraTxt.substring(0,compraTxt.indexOf(' ')));
+                })
+                .toList();
+
+        return  compra.get(0);
+    }
+
+    public static Tienda getTiendaSeleccionada(String tiendaTxt, List<Tienda> tiendas) {
+        //Busco en las tiendas ingresadas la que tiene el id de la que seleccione
+        List<Tienda> tienda = tiendas.stream()
+                .filter(t -> {
+                    assert tiendaTxt != null;
+                    return t.getTiendaId() == Integer.parseInt(tiendaTxt.substring(0,tiendaTxt.indexOf(' ')));
+                })
+                .toList();
+
+        return tienda.get(0);
+    }
+
+    public static Tarjeta getTarjetaSeleccionada(String tarjetaTxt, List<Tarjeta> tarjetas) {
+        //Busco en las tarjetas ingresadas la que tiene el id de la que seleccione
+        List<Tarjeta> tarjeta = tarjetas.stream()
+                .filter(t -> {
+                    assert tarjetaTxt != null;
+                    return t.getTarjetaId() == Integer.parseInt(tarjetaTxt.substring(0,tarjetaTxt.indexOf(' ')));
+                })
+                .toList();
+
+        return tarjeta.get(0);
     }
 }

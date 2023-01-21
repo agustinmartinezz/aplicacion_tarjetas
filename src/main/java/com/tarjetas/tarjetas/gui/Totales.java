@@ -33,7 +33,7 @@ import javax.swing.ImageIcon;
 public class Totales extends JFrame {
 
 	private JPanel contentPane;
-	private JTextField textField;
+	private JTextField txtTotal;
 
 	/**
 	 * Launch the application.
@@ -110,10 +110,7 @@ public class Totales extends JFrame {
 		});
 		contentPane.add(lblVolver, "cell 0 0,alignx left,aligny top");
 		
-		JComboBox<String> comboBox = new JComboBox<String>();
-		contentPane.add(comboBox, "cell 1 1 3 1,growx");
-
-
+		JComboBox<String> cboTarjetas = new JComboBox<String>();
 		//Recorro las tarjetas  para cargarlas en el combo
 		for (Tarjeta tarjeta : tarjetas) {
 			String tarjetaDescripcion = String.valueOf(tarjeta.getTarjetaId());
@@ -142,8 +139,9 @@ public class Totales extends JFrame {
 				}
 			}
 
-			comboBox.addItem(tarjetaDescripcion);
+			cboTarjetas.addItem(tarjetaDescripcion);
 		}
+		contentPane.add(cboTarjetas, "cell 1 1 3 1,growx");
 
 		JMonthChooser monthChooser = new JMonthChooser();
 		contentPane.add(monthChooser, "cell 1 2,grow");
@@ -158,12 +156,12 @@ public class Totales extends JFrame {
 		JLabel lblTituloTotal = new JLabel("Total");
 		lblTituloTotal.setFont(new Font("Tahoma", Font.BOLD, 13));
 		contentPane.add(lblTituloTotal, "cell 1 4");
-		
-		textField = new JTextField();
-		textField.setEnabled(false);
-		textField.setEditable(false);
-		contentPane.add(textField, "cell 2 4,growx");
-		textField.setColumns(10);
+
+		txtTotal = new JTextField();
+		txtTotal.setEnabled(false);
+		txtTotal.setEditable(false);
+		contentPane.add(txtTotal, "cell 2 4,growx");
+		txtTotal.setColumns(10);
 	}
 
 	private RestTemplate newRestTemplate(){

@@ -1,8 +1,6 @@
 package com.tarjetas.tarjetas.gui;
 
-import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.Toolkit;
+import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -18,6 +16,8 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import static com.tarjetas.tarjetas.gui.MenuPrincipal.*;
 import static com.tarjetas.tarjetas.infrastructure.DependencyRestTemplate.newRestTemplate;
 
 public class PantallaCompras extends JFrame {
@@ -107,10 +107,11 @@ public class PantallaCompras extends JFrame {
 		});
 		contentPane.add(lblVolver, "cell 0 0,alignx center,aligny center");
 
-		JComboBox<String> comboBox = new JComboBox<String>();
-		comboBox.setEditable(true);
-		contentPane.add(comboBox, "cell 1 2,growx");
-		cargarComboBox(comboBox, comprasIngresadas, tiendas);
+		JComboBox<String> cboCompras = new JComboBox<String>();
+		cboCompras.setEditable(true);
+		cboCompras.setMaximumSize(new Dimension(370,30));
+		contentPane.add(cboCompras, "cell 1 2,growx");
+		cargarComboBox(cboCompras, comprasIngresadas, tiendas);
 
 		JLabel lblModificar = new JLabel("");
 		lblModificar.addMouseListener(new MouseAdapter() {
@@ -118,10 +119,10 @@ public class PantallaCompras extends JFrame {
 			public void mouseClicked(MouseEvent e) {
 				try {
 					//Obtengo el texto del item seleccionado del combo
-					String compraTxt = (String) comboBox.getSelectedItem();
+					String compraTxt = (String) cboCompras.getSelectedItem();
 
 					//Creo el frame de modificar con la compra seleccionada
-					IngModCompra frame = new IngModCompra(Objects.requireNonNull(getCompraSeleccionada(compraTxt, finalCompras)));
+					IngModCompra frame = new IngModCompra(getCompraSeleccionada(compraTxt, finalCompras));
 
 					frame.setLocationRelativeTo(null);
 					frame.setVisible(true);
@@ -151,20 +152,27 @@ public class PantallaCompras extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				//Obtengo el texto del item seleccionado del combo
-				String compraTxt = (String) comboBox.getSelectedItem();
+				String compraTxt = (String) cboCompras.getSelectedItem();
 
-				restRepository.eliminarCompra(getCompraSeleccionada(compraTxt, finalCompras));
+				int input = JOptionPane.showConfirmDialog(null,
+						"Seguro que desea eliminar esta compra?", "Eliminar Compra",JOptionPane.OK_CANCEL_OPTION);
 
-				//Recargo el combo box con las compras
-				try {
-					List<Tienda> tiendasAux = objectMapper.readValue(restRepository.getTiendas(), new TypeReference<>(){});
-					List<Compra> comprasIngresadasAux = objectMapper.readValue(restRepository.getCompras(), new TypeReference<>(){});
+				if (input == 0) {
+					restRepository.eliminarCompra(getCompraSeleccionada(compraTxt, finalCompras));
 
-					comboBox.removeAllItems();
-					cargarComboBox(comboBox, comprasIngresadasAux, tiendasAux);
-				} catch (Exception e1) {
-					e1.printStackTrace();
-					//TODO: Desarrollar un popup de error
+					JOptionPane.showMessageDialog(null,"Compra Eliminada Correctamente.","Atencion",JOptionPane.INFORMATION_MESSAGE);
+
+					//Recargo el combo box con las compras
+					try {
+						List<Tienda> tiendasAux = objectMapper.readValue(restRepository.getTiendas(), new TypeReference<>(){});
+						List<Compra> comprasIngresadasAux = objectMapper.readValue(restRepository.getCompras(), new TypeReference<>(){});
+
+						cboCompras.removeAllItems();
+						cargarComboBox(cboCompras, comprasIngresadasAux, tiendasAux);
+					} catch (Exception e1) {
+						e1.printStackTrace();
+						//TODO: Desarrollar un popup de error
+					}
 				}
 			}
 
@@ -214,20 +222,7 @@ public class PantallaCompras extends JFrame {
 		contentPane.add(lblAgregar, "cell 4 2,alignx center");
 	}
 
-	private Compra getCompraSeleccionada(String compraTxt, List<Compra> finalCompras) {
-		try {
-			//Busco en las compras ingresadas la que tiene el id de la que seleccione
-			List<Compra> compra = finalCompras.stream()
-					.filter(c -> c.getCompraId() == Integer.parseInt(compraTxt.substring(0,compraTxt.indexOf(' '))))
-					.toList();
 
-			//Creo el frame de modificar con el objeto de la compra que seleccione
-			return  compra.get(0);
-		} catch (Exception e1) {
-			e1.printStackTrace();
-			return null;
-		}
-	}
 
 	private void cargarComboBox(JComboBox comboBox, List<Compra> comprasIngresadas, List<Tienda> tiendas){
 		//Recorro las compras ingresadas para cargarlas en el combo
