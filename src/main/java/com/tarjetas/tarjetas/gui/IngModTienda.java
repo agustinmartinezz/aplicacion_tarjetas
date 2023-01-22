@@ -101,24 +101,28 @@ public class IngModTienda extends JFrame {
 		btnAccion.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				tienda.setTiendaNombre(txtTiendaNombre.getText());
+				try {
+					tienda.setTiendaNombre(txtTiendaNombre.getText());
 
-				int input = JOptionPane.showConfirmDialog(null,
-						"Nombre: " + txtTiendaNombre.getText(), "Confirmar Tienda",JOptionPane.OK_CANCEL_OPTION);
+					int input = JOptionPane.showConfirmDialog(null,
+							"Nombre: " + txtTiendaNombre.getText(), "Confirmar Tienda",JOptionPane.OK_CANCEL_OPTION);
 
-				if (input == 0) {
-					if (tienda.getTiendaId() != 0) {
-						restRepository.modificarTienda(tienda);
-						JOptionPane.showMessageDialog(null,"Tienda Modificada Correctamente.","Atencion",JOptionPane.INFORMATION_MESSAGE);
-					} else {
-						restRepository.ingresarTienda(tienda);
-						JOptionPane.showMessageDialog(null,"Tienda Ingresada Correctamente.","Atencion",JOptionPane.INFORMATION_MESSAGE);
+					if (input == 0) {
+						if (tienda.getTiendaId() != 0) {
+							restRepository.modificarTienda(tienda);
+							JOptionPane.showMessageDialog(null,"Tienda Modificada Correctamente.","Atencion",JOptionPane.INFORMATION_MESSAGE);
+						} else {
+							restRepository.ingresarTienda(tienda);
+							JOptionPane.showMessageDialog(null,"Tienda Ingresada Correctamente.","Atencion",JOptionPane.INFORMATION_MESSAGE);
+						}
+
+						dispose();
+						PantallaTiendas frame = new PantallaTiendas();
+						frame.setLocationRelativeTo(null);
+						frame.setVisible(true);
 					}
-
-					dispose();
-					PantallaTiendas frame = new PantallaTiendas();
-					frame.setLocationRelativeTo(null);
-					frame.setVisible(true);
+				} catch (Exception ex) {
+					JOptionPane.showMessageDialog(null, "Ocurrio un error inesperado", "Error", JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		});

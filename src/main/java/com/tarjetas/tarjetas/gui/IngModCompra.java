@@ -81,8 +81,7 @@ public class IngModCompra extends JFrame {
 			bancos = objectMapper.readValue(restRepository.getBancos(), new TypeReference<>(){});
 			personas = objectMapper.readValue(restRepository.getPersonas(), new TypeReference<>(){});
 		} catch (Exception e) {
-			e.printStackTrace();
-			//TODO: Desarrollar un popup de error
+			JOptionPane.showMessageDialog(null, "Ocurrio un error inesperado", "Error", JOptionPane.ERROR_MESSAGE);
 		}
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -194,37 +193,41 @@ public class IngModCompra extends JFrame {
 		btnAccion.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				compra.setCompraDescripcion(txtDescripcion.getText());
-				compra.setCompraMonto(Double.parseDouble(txtMonto.getText()));
-				compra.setCompraFecha(dteFecha.getDate().toInstant()
-						.atZone(ZoneId.systemDefault())
-						.toLocalDate());
-				compra.setCompraCuotas(Integer.parseInt(txtCuotas.getText()));
+				try {
+					compra.setCompraDescripcion(txtDescripcion.getText());
+					compra.setCompraMonto(Double.parseDouble(txtMonto.getText()));
+					compra.setCompraFecha(dteFecha.getDate().toInstant()
+							.atZone(ZoneId.systemDefault())
+							.toLocalDate());
+					compra.setCompraCuotas(Integer.parseInt(txtCuotas.getText()));
 
-				Tienda tiendaSeleccionada = getTiendaSeleccionada((String) cboTiendas.getSelectedItem(), finalTiendas);
-				compra.setTiendaId(tiendaSeleccionada.getTiendaId());
+					Tienda tiendaSeleccionada = getTiendaSeleccionada((String) cboTiendas.getSelectedItem(), finalTiendas);
+					compra.setTiendaId(tiendaSeleccionada.getTiendaId());
 
-				Tarjeta tarjetaSeleccionada = getTarjetaSeleccionada((String) cboTarjetas.getSelectedItem(), finalTarjetas);
-				compra.setTarjetaId(tarjetaSeleccionada.getTarjetaId());
+					Tarjeta tarjetaSeleccionada = getTarjetaSeleccionada((String) cboTarjetas.getSelectedItem(), finalTarjetas);
+					compra.setTarjetaId(tarjetaSeleccionada.getTarjetaId());
 
-				String msgConfirm = compra.getCompraDescripcion() + " \n$" + compra.getCompraMonto() + " \n" + compra.getCompraFecha() + " \nCuotas " + compra.getCompraCuotas() + " \n" + cboTiendas.getSelectedItem() + " \n" + cboTarjetas.getSelectedItem();
+					String msgConfirm = compra.getCompraDescripcion() + " \n$" + compra.getCompraMonto() + " \n" + compra.getCompraFecha() + " \nCuotas " + compra.getCompraCuotas() + " \n" + cboTiendas.getSelectedItem() + " \n" + cboTarjetas.getSelectedItem();
 
-				int input = JOptionPane.showConfirmDialog(null,
-						msgConfirm, "Confirmar Compra",JOptionPane.OK_CANCEL_OPTION);
+					int input = JOptionPane.showConfirmDialog(null,
+							msgConfirm, "Confirmar Compra",JOptionPane.OK_CANCEL_OPTION);
 
-				if (input == 0) {
-					if (compra.getCompraId() != 0) {
-						restRepository.modificarCompra(compra);
-						JOptionPane.showMessageDialog(null,"Compra Modificada Correctamente.","Atencion",JOptionPane.INFORMATION_MESSAGE);
-					} else {
-						restRepository.ingresarCompra(compra);
-						JOptionPane.showMessageDialog(null,"Compra Ingresada Correctamente.","Atencion",JOptionPane.INFORMATION_MESSAGE);
+					if (input == 0) {
+						if (compra.getCompraId() != 0) {
+							restRepository.modificarCompra(compra);
+							JOptionPane.showMessageDialog(null,"Compra Modificada Correctamente.","Atencion",JOptionPane.INFORMATION_MESSAGE);
+						} else {
+							restRepository.ingresarCompra(compra);
+							JOptionPane.showMessageDialog(null,"Compra Ingresada Correctamente.","Atencion",JOptionPane.INFORMATION_MESSAGE);
+						}
+
+						dispose();
+						PantallaCompras frame = new PantallaCompras();
+						frame.setLocationRelativeTo(null);
+						frame.setVisible(true);
 					}
-
-					dispose();
-					PantallaCompras frame = new PantallaCompras();
-					frame.setLocationRelativeTo(null);
-					frame.setVisible(true);
+				} catch (Exception ex) {
+					JOptionPane.showMessageDialog(null, "Ocurrio un error inesperado", "Error", JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		});
@@ -255,14 +258,12 @@ public class IngModCompra extends JFrame {
 					})
 					.toList();
 
-			System.out.println(tarjeta.get(0).toString());
-
 			cboTiendas.setSelectedItem(tienda.get(0).toString());
 			cboTarjetas.setSelectedItem(armarTarjetaDescripcion(tarjeta.get(0),bancos,personas));
 		}
 	}
 
-	private String armarTarjetaDescripcion(Tarjeta tarjeta, List<Banco> bancos, List<Persona> personas) {
+	static String armarTarjetaDescripcion(Tarjeta tarjeta, List<Banco> bancos, List<Persona> personas) {
 		String tarjetaDescripcion = String.valueOf(tarjeta.getTarjetaId());
 
 		boolean encontre = false;

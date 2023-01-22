@@ -1,34 +1,31 @@
 package com.tarjetas.tarjetas.gui;
 
 import java.awt.*;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.tarjetas.tarjetas.domain.Banco;
+import com.tarjetas.tarjetas.domain.Compra;
 import com.tarjetas.tarjetas.domain.Persona;
 import com.tarjetas.tarjetas.domain.Tarjeta;
 import com.tarjetas.tarjetas.infrastructure.RestRepository;
 import com.toedter.calendar.JYearChooser;
 import net.miginfocom.swing.MigLayout;
 import com.toedter.calendar.JMonthChooser;
-import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.http.client.ClientHttpResponse;
-import org.springframework.web.client.ResponseErrorHandler;
+import org.springframework.cglib.core.Local;
 import org.springframework.web.client.RestTemplate;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JTextField;
+
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.IOException;
-import java.time.Duration;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import javax.swing.JComboBox;
-import javax.swing.ImageIcon;
+
+import static com.tarjetas.tarjetas.gui.MenuPrincipal.getTarjetaSeleccionada;
+import static com.tarjetas.tarjetas.infrastructure.DependencyRestTemplate.newRestTemplate;
 
 public class Totales extends JFrame {
 
@@ -59,6 +56,7 @@ public class Totales extends JFrame {
 		RestRepository restRepository = new RestRepository(restTemplate);
 
 		ObjectMapper objectMapper = new ObjectMapper();
+		objectMapper.registerModule(new JavaTimeModule());
 
 		List<Tarjeta> tarjetas = new ArrayList<Tarjeta>();
 		List<Banco> bancos = new ArrayList<Banco>();
@@ -151,6 +149,68 @@ public class Totales extends JFrame {
 		
 		JButton btnConsultar = new JButton("Consultar");
 		btnConsultar.setFocusable(false);
+		List<Tarjeta> finalTarjetas = tarjetas;
+		btnConsultar.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				try {
+					String year = String.valueOf(yearChooser.getYear());
+					String month = (monthChooser.getMonth() + 1) < 10 ? "0"+(monthChooser.getMonth() + 1) : String.valueOf(monthChooser.getMonth() + 1);
+					LocalDate fechaConsulta = LocalDate.parse(year+"-"+month+"-01");
+
+					//Cargo todas las compras que no estan eliminadas
+					List<Compra> compras = objectMapper.readValue(restRepository.getCompras(), new TypeReference<>(){});
+
+					//Cargo la tarjeta seleccionada del combo
+					Tarjeta tarjetaSeleccionada = getTarjetaSeleccionada(cboTarjetas.getSelectedItem().toString(), finalTarjetas);
+
+					List<Compra> comprasTarjeta = new ArrayList<>();
+					compras.forEach(compra -> {
+						if (compra.getTarjetaId() == tarjetaSeleccionada.getTarjetaId()) {
+							LocalDate primeraCuota;
+							LocalDate ultimaCuota;
+
+							if (compra.getCompraFecha().getDayOfMonth() > tarjetaSeleccionada.getTarjetaDiaCierre()) {
+								primeraCuota = compra.getCompraFecha().plusMonths(1);
+								primeraCuota = primeraCuota.withDayOfMonth(1);
+
+								ultimaCuota = compra.getCompraFecha().plusMonths(compra.getCompraCuotas());
+								ultimaCuota = ultimaCuota.withDayOfMonth(1);
+							} else {
+								primeraCuota = compra.getCompraFecha();
+								primeraCuota = primeraCuota.withDayOfMonth(1);
+
+								ultimaCuota = compra.getCompraFecha().plusMonths(compra.getCompraCuotas() - 1);
+								ultimaCuota = ultimaCuota.withDayOfMonth(1);
+							}
+
+							if ((primeraCuota.isBefore(fechaConsulta) || primeraCuota.isEqual(fechaConsulta)) && (ultimaCuota.isAfter(fechaConsulta) || ultimaCuota.isEqual(fechaConsulta)))
+								comprasTarjeta.add(compra);
+						}
+					});
+
+					double totalFechaSeleccionada = 0.00;
+
+					for (Compra compra : comprasTarjeta) {
+						totalFechaSeleccionada += compra.getCompraMonto() / compra.getCompraCuotas();
+					}
+
+					txtTotal.setText(String.format("%.2f", totalFechaSeleccionada));
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			}
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				Cursor cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
+				setCursor(cursor);
+			}
+			@Override
+			public void mouseExited(MouseEvent e) {
+				Cursor cursor = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR);
+				setCursor(cursor);
+			}
+		});
 		contentPane.add(btnConsultar, "cell 3 2");
 		
 		JLabel lblTituloTotal = new JLabel("Total");
@@ -158,27 +218,10 @@ public class Totales extends JFrame {
 		contentPane.add(lblTituloTotal, "cell 1 4");
 
 		txtTotal = new JTextField();
-		txtTotal.setEnabled(false);
 		txtTotal.setEditable(false);
-		contentPane.add(txtTotal, "cell 2 4,growx");
+		txtTotal.setHorizontalAlignment(SwingConstants.RIGHT);
+		txtTotal.setFont(new Font("Tahoma", Font.BOLD, 13));
+		contentPane.add(txtTotal, "cell 2 4 2 1,growx");
 		txtTotal.setColumns(10);
-	}
-
-	private RestTemplate newRestTemplate(){
-		return new RestTemplateBuilder()
-				.errorHandler(new ResponseErrorHandler() {
-					@Override
-					public boolean hasError(ClientHttpResponse response) throws IOException {
-						return false;
-					}
-
-					@Override
-					public void handleError(ClientHttpResponse response) throws IOException {
-
-					}
-				})
-				.setConnectTimeout(Duration.ofSeconds(2))
-				.setReadTimeout(Duration.ofSeconds(20))
-				.build();
 	}
 }

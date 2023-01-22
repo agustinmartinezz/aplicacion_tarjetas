@@ -6,17 +6,20 @@ import javax.swing.border.EmptyBorder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.tarjetas.tarjetas.domain.Compra;
-import com.tarjetas.tarjetas.domain.Tienda;
+import com.tarjetas.tarjetas.domain.*;
 import com.tarjetas.tarjetas.infrastructure.RestRepository;
 import net.miginfocom.swing.MigLayout;
 import org.springframework.web.client.RestTemplate;
+
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static com.tarjetas.tarjetas.gui.IngModCompra.armarTarjetaDescripcion;
 import static com.tarjetas.tarjetas.gui.MenuPrincipal.*;
 import static com.tarjetas.tarjetas.infrastructure.DependencyRestTemplate.newRestTemplate;
 
@@ -52,18 +55,25 @@ public class PantallaCompras extends JFrame {
 
 		List<Tienda> tiendas = new ArrayList<Tienda>();
 		List<Compra> comprasIngresadas = new ArrayList<Compra>();
+		List<Tarjeta> tarjetas = new ArrayList<Tarjeta>();
+		List<Banco> bancos = new ArrayList<Banco>();
+		List<Persona> personas = new ArrayList<Persona>();
 
 		//Cargo las tiendas ingresadas
 		try {
 			tiendas = objectMapper.readValue(restRepository.getTiendas(), new TypeReference<>(){});
 			comprasIngresadas = objectMapper.readValue(restRepository.getCompras(), new TypeReference<>(){});
+			tarjetas = objectMapper.readValue(restRepository.getTarjetas(), new TypeReference<>(){});
+			bancos = objectMapper.readValue(restRepository.getBancos(), new TypeReference<>(){});
+			personas = objectMapper.readValue(restRepository.getPersonas(), new TypeReference<>(){});
 		} catch (Exception e) {
-			e.printStackTrace();
-			//TODO: Desarrollar un popup de error
+			JOptionPane.showMessageDialog(null, "Ocurrio un error inesperado", "Error", JOptionPane.ERROR_MESSAGE);
 		}
 
 		/*Variable auxiliar para poder usar el filter*/
 		List<Compra> finalCompras = comprasIngresadas;
+		List<Tienda> finalTiendas = tiendas;
+		List<Tarjeta> finalTarjetas = tarjetas;
 		/*-------------------------------------------*/
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -105,13 +115,43 @@ public class PantallaCompras extends JFrame {
 				setCursor(cursor);
 			}
 		});
-		contentPane.add(lblVolver, "cell 0 0,alignx center,aligny center");
+		contentPane.add(lblVolver, "cell 0 0,alignx left,aligny center");
 
-		JComboBox<String> cboCompras = new JComboBox<String>();
+		JLabel lblTarjeta = new JLabel("Tarjeta");
+		lblTarjeta.setFont(new Font("Tahoma", Font.BOLD, 12));
+		contentPane.add(lblTarjeta, "cell 0 1,alignx trailing");
+
+		FilterComboBox cboCompras = new FilterComboBox(comprasAsList(comprasIngresadas, tiendas, 0));
 		cboCompras.setEditable(true);
 		cboCompras.setMaximumSize(new Dimension(370,30));
 		contentPane.add(cboCompras, "cell 1 2,growx");
-		cargarComboBox(cboCompras, comprasIngresadas, tiendas);
+
+		JComboBox cboTarjetas = new JComboBox();
+		cboTarjetas.addItem("Todas");
+		for (Tarjeta tarjeta : tarjetas) {
+			cboTarjetas.addItem(armarTarjetaDescripcion(tarjeta,bancos,personas));
+		}
+		cboTarjetas.setEditable(false);
+		cboTarjetas.setMaximumSize(new Dimension(370,30));
+		cboTarjetas.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				//Con el itemStateChanged se producen dos eventos, deselect y select, uso el if para filtrar unicamente el select
+				if (e.getStateChange() == 1) {
+					String tarjetaSeleccionada = cboTarjetas.getSelectedItem().toString();
+					
+					int tarjetaId = 0;
+					if (!tarjetaSeleccionada.equals("Todas")) {
+						tarjetaId = getTarjetaSeleccionada(tarjetaSeleccionada, finalTarjetas).getTarjetaId();
+					}
+
+					cboCompras.removeAllItems();
+					for (String compra : comprasAsList(finalCompras, finalTiendas, tarjetaId)) {
+						cboCompras.addItem(compra);
+					}
+				}
+			}
+		});
+		contentPane.add(cboTarjetas, "cell 1 1,growx");
 
 		JLabel lblModificar = new JLabel("");
 		lblModificar.addMouseListener(new MouseAdapter() {
@@ -162,17 +202,10 @@ public class PantallaCompras extends JFrame {
 
 					JOptionPane.showMessageDialog(null,"Compra Eliminada Correctamente.","Atencion",JOptionPane.INFORMATION_MESSAGE);
 
-					//Recargo el combo box con las compras
-					try {
-						List<Tienda> tiendasAux = objectMapper.readValue(restRepository.getTiendas(), new TypeReference<>(){});
-						List<Compra> comprasIngresadasAux = objectMapper.readValue(restRepository.getCompras(), new TypeReference<>(){});
-
-						cboCompras.removeAllItems();
-						cargarComboBox(cboCompras, comprasIngresadasAux, tiendasAux);
-					} catch (Exception e1) {
-						e1.printStackTrace();
-						//TODO: Desarrollar un popup de error
-					}
+					dispose();
+					PantallaCompras frame = new PantallaCompras();
+					frame.setLocationRelativeTo(null);
+					frame.setVisible(true);
 				}
 			}
 
@@ -222,10 +255,10 @@ public class PantallaCompras extends JFrame {
 		contentPane.add(lblAgregar, "cell 4 2,alignx center");
 	}
 
+	private List<String> comprasAsList (List<Compra> comprasIngresadas, List<Tienda> tiendas, int tarjetaId) {
+		List<String> compras = new ArrayList<>();
+		compras.add("");
 
-
-	private void cargarComboBox(JComboBox comboBox, List<Compra> comprasIngresadas, List<Tienda> tiendas){
-		//Recorro las compras ingresadas para cargarlas en el combo
 		for (Compra compra : comprasIngresadas) {
 			String item = compra.toString();
 
@@ -244,7 +277,17 @@ public class PantallaCompras extends JFrame {
 			}
 
 			item += " - " + tiendaDescripcion;
-			comboBox.addItem(item);
+
+			if (tarjetaId != 0) {
+				//Si vino filtro por tarjeta solo agrego aquellas compras que pertenecen a esa tarjeta
+				if (tarjetaId == compra.getTarjetaId())
+					compras.add(item);
+			} else {
+				//Si no vino filtro por tarjeta agrego todas
+				compras.add(item);
+			}
 		}
+
+		return compras;
 	}
 }
