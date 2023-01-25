@@ -6,6 +6,7 @@ import javax.swing.border.EmptyBorder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.tarjetas.tarjetas.MenuPrincipal;
 import com.tarjetas.tarjetas.domain.*;
 import com.tarjetas.tarjetas.infrastructure.RestRepository;
 import net.miginfocom.swing.MigLayout;
@@ -20,7 +21,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.tarjetas.tarjetas.gui.IngModCompra.armarTarjetaDescripcion;
-import static com.tarjetas.tarjetas.gui.MenuPrincipal.*;
+import static com.tarjetas.tarjetas.MenuPrincipal.*;
 import static com.tarjetas.tarjetas.infrastructure.DependencyRestTemplate.newRestTemplate;
 
 public class PantallaCompras extends JFrame {
@@ -86,7 +87,7 @@ public class PantallaCompras extends JFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 
 		setContentPane(contentPane);
-		contentPane.setLayout(new MigLayout("", "[5%][60%][10%][10%][10%][5%]", "[20%][20%][20%][20%][20%]"));
+		contentPane.setLayout(new MigLayout("", "[5%][60%][10%][10%][10%][5%]", "[16%][16%][16%][16%][16%][16%]"));
 
 		JLabel lblVolver = new JLabel("");
 		lblVolver.setIcon(new ImageIcon(Objects.requireNonNull(PantallaCompras.class.getResource("/com/tarjetas/tarjetas/img/arrow.png"))));
@@ -119,12 +120,12 @@ public class PantallaCompras extends JFrame {
 
 		JLabel lblTarjeta = new JLabel("Tarjeta");
 		lblTarjeta.setFont(new Font("Tahoma", Font.BOLD, 12));
-		contentPane.add(lblTarjeta, "cell 0 1,alignx trailing");
+		contentPane.add(lblTarjeta, "cell 0 2,alignx trailing");
 
 		FilterComboBox cboCompras = new FilterComboBox(comprasAsList(comprasIngresadas, tiendas, 0));
 		cboCompras.setEditable(true);
 		cboCompras.setMaximumSize(new Dimension(370,30));
-		contentPane.add(cboCompras, "cell 1 2,growx");
+		contentPane.add(cboCompras, "cell 1 3,growx");
 
 		JComboBox cboTarjetas = new JComboBox();
 		cboTarjetas.addItem("Todas");
@@ -138,7 +139,7 @@ public class PantallaCompras extends JFrame {
 				//Con el itemStateChanged se producen dos eventos, deselect y select, uso el if para filtrar unicamente el select
 				if (e.getStateChange() == 1) {
 					String tarjetaSeleccionada = cboTarjetas.getSelectedItem().toString();
-					
+
 					int tarjetaId = 0;
 					if (!tarjetaSeleccionada.equals("Todas")) {
 						tarjetaId = getTarjetaSeleccionada(tarjetaSeleccionada, finalTarjetas).getTarjetaId();
@@ -151,7 +152,7 @@ public class PantallaCompras extends JFrame {
 				}
 			}
 		});
-		contentPane.add(cboTarjetas, "cell 1 1,growx");
+		contentPane.add(cboTarjetas, "cell 1 2,growx");
 
 		JLabel lblModificar = new JLabel("");
 		lblModificar.addMouseListener(new MouseAdapter() {
@@ -185,7 +186,7 @@ public class PantallaCompras extends JFrame {
 			}
 		});
 		lblModificar.setIcon(new ImageIcon(Objects.requireNonNull(PantallaCompras.class.getResource("/com/tarjetas/tarjetas/img/edit.png"))));
-		contentPane.add(lblModificar, "cell 2 2,alignx center");
+		contentPane.add(lblModificar, "cell 2 3,alignx center");
 
 		JLabel lblEliminar = new JLabel("");
 		lblEliminar.addMouseListener(new MouseAdapter() {
@@ -222,7 +223,7 @@ public class PantallaCompras extends JFrame {
 			}
 		});
 		lblEliminar.setIcon(new ImageIcon(Objects.requireNonNull(PantallaCompras.class.getResource("/com/tarjetas/tarjetas/img/delete.png"))));
-		contentPane.add(lblEliminar, "cell 3 2,alignx center");
+		contentPane.add(lblEliminar, "cell 3 3,alignx center");
 
 		JLabel lblAgregar = new JLabel("");
 		lblAgregar.addMouseListener(new MouseAdapter() {
@@ -252,7 +253,7 @@ public class PantallaCompras extends JFrame {
 			}
 		});
 		lblAgregar.setIcon(new ImageIcon(Objects.requireNonNull(PantallaCompras.class.getResource("/com/tarjetas/tarjetas/img/add.png"))));
-		contentPane.add(lblAgregar, "cell 4 2,alignx center");
+		contentPane.add(lblAgregar, "cell 4 3,alignx center");
 	}
 
 	private List<String> comprasAsList (List<Compra> comprasIngresadas, List<Tienda> tiendas, int tarjetaId) {

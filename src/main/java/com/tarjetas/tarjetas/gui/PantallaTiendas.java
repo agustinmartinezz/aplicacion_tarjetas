@@ -16,12 +16,13 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tarjetas.tarjetas.MenuPrincipal;
 import com.tarjetas.tarjetas.domain.Tienda;
 import com.tarjetas.tarjetas.infrastructure.RestRepository;
 import net.miginfocom.swing.MigLayout;
 import org.springframework.web.client.RestTemplate;
 
-import static com.tarjetas.tarjetas.gui.MenuPrincipal.*;
+import static com.tarjetas.tarjetas.MenuPrincipal.*;
 import static com.tarjetas.tarjetas.infrastructure.DependencyRestTemplate.newRestTemplate;
 
 public class PantallaTiendas extends JFrame {

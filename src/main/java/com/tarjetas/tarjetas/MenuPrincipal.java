@@ -1,4 +1,4 @@
-package com.tarjetas.tarjetas.gui;
+package com.tarjetas.tarjetas;
 
 import java.awt.EventQueue;
 
@@ -10,6 +10,9 @@ import javax.swing.JButton;
 import com.tarjetas.tarjetas.domain.Compra;
 import com.tarjetas.tarjetas.domain.Tarjeta;
 import com.tarjetas.tarjetas.domain.Tienda;
+import com.tarjetas.tarjetas.gui.PantallaCompras;
+import com.tarjetas.tarjetas.gui.PantallaTiendas;
+import com.tarjetas.tarjetas.gui.Totales;
 import net.miginfocom.swing.MigLayout;
 import javax.swing.JLabel;
 import java.awt.Font;

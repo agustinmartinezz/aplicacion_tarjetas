@@ -19,7 +19,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-import static com.tarjetas.tarjetas.gui.MenuPrincipal.*;
+import static com.tarjetas.tarjetas.MenuPrincipal.*;
 import static com.tarjetas.tarjetas.infrastructure.DependencyRestTemplate.newRestTemplate;
 
 public class IngModCompra extends JFrame {
@@ -166,12 +166,9 @@ public class IngModCompra extends JFrame {
 		lblTienda.setFont(new Font("Tahoma", Font.BOLD, 12));
 		contentPane.add(lblTienda, "cell 1 7");
 		
-		JComboBox cboTiendas = new JComboBox();
+/*		JComboBox cboTiendas = new JComboBox();*/
+		FilterComboBox cboTiendas = new FilterComboBox(tiendasAsString(tiendas));
 		cboTiendas.setEditable(true);
-		//Recorro las tiendas ingresadas para cargarlas en el combo
-		for (Tienda tienda : tiendas) {
-			cboTiendas.addItem(tienda.toString());
-		}
 		contentPane.add(cboTiendas, "cell 2 7 2 1,growx");
 		
 		lblTarjeta = new JLabel("Tarjeta");
@@ -291,5 +288,17 @@ public class IngModCompra extends JFrame {
 		}
 
 		return tarjetaDescripcion;
+	}
+
+	private List<String> tiendasAsString(List<Tienda> tiendasIngresadas) {
+		List<String> tiendas = new ArrayList<>();
+		tiendas.add("");
+
+		//Recorro las tiendas ingresadas para cargarlas en el combo
+		for (Tienda tienda : tiendasIngresadas) {
+			tiendas.add(tienda.toString());
+		}
+
+		return tiendas;
 	}
 }
