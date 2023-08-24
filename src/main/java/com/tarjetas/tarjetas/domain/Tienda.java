@@ -11,6 +11,9 @@ public class Tienda {
     private int tiendaId;
     private String tiendaNombre;
 
+    public Tienda (int tiendaId) {
+        this.tiendaId = tiendaId;
+    }
     public String toString() {
         String string = tiendaId + " - " + tiendaNombre;
         return string;

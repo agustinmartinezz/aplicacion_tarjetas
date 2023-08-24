@@ -199,10 +199,10 @@ public class IngModCompra extends JFrame {
 					compra.setCompraCuotas(Integer.parseInt(txtCuotas.getText()));
 
 					Tienda tiendaSeleccionada = getTiendaSeleccionada((String) cboTiendas.getSelectedItem(), finalTiendas);
-					compra.setTiendaId(tiendaSeleccionada.getTiendaId());
+					compra.setTienda(new Tienda(tiendaSeleccionada.getTiendaId()));
 
 					Tarjeta tarjetaSeleccionada = getTarjetaSeleccionada((String) cboTarjetas.getSelectedItem(), finalTarjetas);
-					compra.setTarjetaId(tarjetaSeleccionada.getTarjetaId());
+					compra.setTarjeta(new Tarjeta(tarjetaSeleccionada.getTarjetaId()));
 
 					String msgConfirm = compra.getCompraDescripcion() + " \n$" + compra.getCompraMonto() + " \n" + compra.getCompraFecha() + " \nCuotas " + compra.getCompraCuotas() + " \n" + cboTiendas.getSelectedItem() + " \n" + cboTarjetas.getSelectedItem();
 
@@ -243,15 +243,15 @@ public class IngModCompra extends JFrame {
 
 			List<Tienda> tienda = tiendas.stream()
 					.filter(t -> {
-						assert compra.getTiendaId() != 0;
-						return t.getTiendaId() == compra.getTiendaId();
+						assert compra.getTienda().getTiendaId() != 0;
+						return t.getTiendaId() == compra.getTienda().getTiendaId();
 					})
 					.toList();
 
 			List<Tarjeta> tarjeta = tarjetas.stream()
 					.filter(t -> {
-						assert compra.getTarjetaId() != 0;
-						return t.getTarjetaId() == compra.getTarjetaId();
+						assert compra.getTarjeta().getTarjetaId() != 0;
+						return t.getTarjetaId() == compra.getTarjeta().getTarjetaId();
 					})
 					.toList();
 
@@ -267,7 +267,7 @@ public class IngModCompra extends JFrame {
 		int i = 0;
 
 		while (!encontre && i < bancos.size()) {
-			if (bancos.get(i).getBancoId() == tarjeta.getBancoId()) {
+			if (bancos.get(i).getBancoId() == tarjeta.getBanco().getBancoId()) {
 				encontre = true;
 				tarjetaDescripcion += " - " + bancos.get(i).getBancoNombre();
 			} else {
@@ -279,7 +279,7 @@ public class IngModCompra extends JFrame {
 		i = 0;
 
 		while (!encontre && i < personas.size()) {
-			if (personas.get(i).getPersonaId() == tarjeta.getPersonaId()) {
+			if (personas.get(i).getPersonaId() == tarjeta.getPersona().getPersonaId()) {
 				encontre = true;
 				tarjetaDescripcion += " - " + personas.get(i).getPersonaNombre() + " " + personas.get(i).getPersonaApellido();
 			} else {

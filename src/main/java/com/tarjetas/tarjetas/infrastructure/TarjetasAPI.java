@@ -1,8 +1,6 @@
 package com.tarjetas.tarjetas.infrastructure;
 
-import com.tarjetas.tarjetas.domain.Compra;
-import com.tarjetas.tarjetas.domain.ITarjetas;
-import com.tarjetas.tarjetas.domain.Tarjeta;
+import com.tarjetas.tarjetas.domain.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,15 +26,17 @@ public class TarjetasAPI implements ITarjetas {
 
         Connection con = dataSource.getConnection();
         Statement stmt = con.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT * FROM TARJETAS");
+        ResultSet rs = stmt.executeQuery("SELECT T.TarjetaId, T.TarjetaDiaCierre, T.BancoId, B.BancoNombre, T.PersonaId, P.PersonaNombre, P.PersonaApellido FROM tarjetas AS T, bancos AS B, personas AS P WHERE T.BancoId = B.BancoId AND T.PersonaId = P.PersonaId");
 
         while (rs.next()) {
             Tarjeta tarjetaAux = new Tarjeta();
 
             tarjetaAux.setTarjetaId(rs.getInt("TarjetaId"));
             tarjetaAux.setTarjetaDiaCierre(rs.getInt("TarjetaDiaCierre"));
-            tarjetaAux.setBancoId(rs.getInt("BancoId"));
-            tarjetaAux.setPersonaId(rs.getInt("PersonaId"));
+            Banco banco = new Banco(rs.getInt("BancoId"), rs.getString("BancoNombre"));
+            tarjetaAux.setBanco(banco);
+            Persona persona = new Persona(rs.getInt("PersonaId"), rs.getString("PersonaNombre"), rs.getString("PersonaApellido"));
+            tarjetaAux.setPersona(persona);
 
             tarjetas.add(tarjetaAux);
         }

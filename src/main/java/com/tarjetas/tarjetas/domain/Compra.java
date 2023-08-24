@@ -14,8 +14,10 @@ public class Compra {
     private double compraMonto;
     private LocalDate compraFecha;
     private int compraCuotas;
-    private int tiendaId;
-    private  int tarjetaId;
+    private Tienda tienda;
+    private Tarjeta tarjeta;
+    private Banco banco;
+    private Persona persona;
 
     public String toString() {
         String string = compraId + " - " + compraDescripcion + " - " + compraFecha.toString() + " - $" + compraMonto;

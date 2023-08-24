@@ -121,7 +121,7 @@ public class Totales extends JFrame {
 			int i = 0;
 
 			while (!encontre && i < bancos.size()) {
-				if (bancos.get(i).getBancoId() == tarjeta.getBancoId()) {
+				if (bancos.get(i).getBancoId() == tarjeta.getBanco().getBancoId()) {
 					encontre = true;
 					tarjetaDescripcion += " - " + bancos.get(i).getBancoNombre();
 				} else {
@@ -133,7 +133,7 @@ public class Totales extends JFrame {
 			i = 0;
 
 			while (!encontre && i < personas.size()) {
-				if (personas.get(i).getPersonaId() == tarjeta.getPersonaId()) {
+				if (personas.get(i).getPersonaId() == tarjeta.getPersona().getPersonaId()) {
 					encontre = true;
 					tarjetaDescripcion += " - " + personas.get(i).getPersonaNombre() + " " + personas.get(i).getPersonaApellido();
 				} else {
@@ -182,7 +182,7 @@ public class Totales extends JFrame {
 
 					List<Compra> comprasTarjeta = new ArrayList<>();
 					compras.forEach(compra -> {
-						if (compra.getTarjetaId() == tarjetaSeleccionada.getTarjetaId()) {
+						if (compra.getTarjeta().getTarjetaId() == tarjetaSeleccionada.getTarjetaId()) {
 							LocalDate primeraCuota;
 							LocalDate ultimaCuota;
 

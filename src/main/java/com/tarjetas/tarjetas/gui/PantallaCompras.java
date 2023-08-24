@@ -269,7 +269,7 @@ public class PantallaCompras extends JFrame {
 
 			//Busco el nombre de la tienda de la compra en la lista cargada al principio
 			while (!encontre && i < tiendas.size()) {
-				if (tiendas.get(i).getTiendaId() == compra.getTiendaId()) {
+				if (tiendas.get(i).getTiendaId() == compra.getTienda().getTiendaId()) {
 					encontre = true;
 					tiendaDescripcion = tiendas.get(i).getTiendaNombre();
 				} else {
@@ -281,7 +281,7 @@ public class PantallaCompras extends JFrame {
 
 			if (tarjetaId != 0) {
 				//Si vino filtro por tarjeta solo agrego aquellas compras que pertenecen a esa tarjeta
-				if (tarjetaId == compra.getTarjetaId())
+				if (tarjetaId == compra.getTarjeta().getTarjetaId())
 					compras.add(item);
 			} else {
 				//Si no vino filtro por tarjeta agrego todas
