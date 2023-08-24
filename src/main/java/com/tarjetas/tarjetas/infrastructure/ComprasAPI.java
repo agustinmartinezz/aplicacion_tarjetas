@@ -1,7 +1,7 @@
 package com.tarjetas.tarjetas.infrastructure;
 
-import com.tarjetas.tarjetas.domain.Compra;
-import com.tarjetas.tarjetas.domain.ICompras;
+import com.tarjetas.tarjetas.domain.*;
+import com.tarjetas.tarjetas.dtos.CompraDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,7 +29,12 @@ public class ComprasAPI implements ICompras {
 
         Connection con = dataSource.getConnection();
         Statement stmt = con.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT * FROM COMPRAS WHERE CompraEliminada = " + eliminadas);
+        ResultSet rs = stmt.executeQuery("SELECT C.CompraId, C.CompraDescripcion, C.CompraMonto, C.CompraFecha, C.CompraCuotas, C.TiendaId, T.TiendaNombre, C.TarjetaId, B.BancoNombre, TA.PersonaId, P.PersonaNombre, P.PersonaApellido\n" +
+                "FROM COMPRAS AS C, TIENDAS AS T, BANCOS AS B, PERSONAS AS P, TARJETAS AS TA\n" +
+                "WHERE C.TiendaId = T.TiendaId\n" +
+                "AND C.TarjetaId = TA.TarjetaId\n" +
+                "AND TA.BancoId = B.BancoId\n" +
+                "AND TA.PersonaId = P.PersonaId AND CompraEliminada = " + eliminadas);
 
         while (rs.next()) {
             Compra compraAux = new Compra();
@@ -39,8 +44,14 @@ public class ComprasAPI implements ICompras {
             compraAux.setCompraMonto(Double.parseDouble(rs.getString("CompraMonto")));
             compraAux.setCompraFecha(LocalDate.parse(rs.getString("CompraFecha"), formatter));
             compraAux.setCompraCuotas(Integer.parseInt(rs.getString("CompraCuotas")));
-            compraAux.setTiendaId(Integer.parseInt(rs.getString("TiendaId")));
-            compraAux.setTarjetaId(Integer.parseInt(rs.getString("TarjetaId")));
+            Tienda tienda = new Tienda(rs.getInt("TiendaId"), rs.getString("TiendaNombre"));
+            Persona persona = new Persona(rs.getInt("PersonaId"), rs.getString("PersonaNombre"),rs.getString("PersonaApellido"));
+            Banco banco = new Banco(0,rs.getString("BancoNombre"));
+            Tarjeta tarjeta = new Tarjeta(rs.getInt("TarjetaId"));
+            compraAux.setTienda(tienda);
+            compraAux.setPersona(persona);
+            compraAux.setBanco(banco);
+            compraAux.setTarjeta(tarjeta);
 
             compras.add(compraAux);
         }
@@ -52,7 +63,7 @@ public class ComprasAPI implements ICompras {
     }
 
     @PostMapping
-    public void ingresarCompra(@RequestBody Compra compra) throws SQLException {
+    public void ingresarCompra(@RequestBody CompraDTO compra) throws SQLException {
         Connection con = dataSource.getConnection();
         Statement stmt = con.createStatement();
 
@@ -66,7 +77,7 @@ public class ComprasAPI implements ICompras {
     }
 
     @PutMapping
-    public void modificarCompra(@RequestBody Compra compra) throws SQLException {
+    public void modificarCompra(@RequestBody CompraDTO compra) throws SQLException {
         Connection con = dataSource.getConnection();
         Statement stmt = con.createStatement();
 

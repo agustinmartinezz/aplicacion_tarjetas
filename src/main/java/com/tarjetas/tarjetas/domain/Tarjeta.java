@@ -11,6 +11,10 @@ import java.time.LocalDate;
 public class Tarjeta {
     private int tarjetaId;
     private int tarjetaDiaCierre;
-    private int bancoId;
-    private int personaId;
+    private Banco banco;
+    private Persona persona;
+
+    public Tarjeta(int tarjetaId) {
+        this.tarjetaId = tarjetaId;
+    }
 }
