@@ -25,6 +25,7 @@ public class TiendasAPI implements ITiendas {
 
         Connection con = dataSource.getConnection();
         Statement stmt = con.createStatement();
+
         ResultSet rs = stmt.executeQuery("SELECT * FROM TIENDAS;");
 
         while (rs.next()) {
@@ -41,6 +42,27 @@ public class TiendasAPI implements ITiendas {
         rs.close();
 
         return tiendas;
+    }
+
+    @GetMapping("/{tiendaId}")
+    public Tienda getTienda(@PathVariable int tiendaId) throws SQLException {
+        Connection con = dataSource.getConnection();
+        Statement stmt = con.createStatement();
+
+        ResultSet rs = stmt.executeQuery("SELECT * FROM TIENDAS WHERE TIENDAID= " + tiendaId + ";");
+
+        Tienda tienda = new Tienda();
+
+        while (rs.next()) {
+            tienda.setTiendaId(rs.getInt("TiendaId"));
+            tienda.setTiendaNombre(rs.getString("TiendaNombre"));
+        }
+
+        con.close();
+        stmt.close();
+        rs.close();
+
+        return tienda;
     }
 
     @PostMapping

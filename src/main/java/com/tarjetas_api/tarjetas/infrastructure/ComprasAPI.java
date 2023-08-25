@@ -62,6 +62,43 @@ public class ComprasAPI implements ICompras {
         return compras;
     }
 
+    @GetMapping("/{compraId}")
+    public Compra getCompra(@PathVariable int compraId) throws SQLException {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        Connection con = dataSource.getConnection();
+        Statement stmt = con.createStatement();
+        ResultSet rs = stmt.executeQuery("SELECT C.CompraId, C.CompraDescripcion, C.CompraMonto, C.CompraFecha, C.CompraCuotas, C.TiendaId, T.TiendaNombre, C.TarjetaId, B.BancoNombre, TA.PersonaId, P.PersonaNombre, P.PersonaApellido\n" +
+                "FROM COMPRAS AS C, TIENDAS AS T, BANCOS AS B, PERSONAS AS P, TARJETAS AS TA\n" +
+                "WHERE C.TiendaId = T.TiendaId\n" +
+                "AND C.TarjetaId = TA.TarjetaId\n" +
+                "AND TA.BancoId = B.BancoId\n" +
+                "AND TA.PersonaId = P.PersonaId AND CompraId = " + compraId);
+
+        Compra compra = new Compra();
+
+        while (rs.next()) {
+            compra.setCompraId(Integer.parseInt(rs.getString("CompraId")));
+            compra.setCompraDescripcion(rs.getString("CompraDescripcion"));
+            compra.setCompraMonto(Double.parseDouble(rs.getString("CompraMonto")));
+            compra.setCompraFecha(LocalDate.parse(rs.getString("CompraFecha"), formatter));
+            compra.setCompraCuotas(Integer.parseInt(rs.getString("CompraCuotas")));
+            Tienda tienda = new Tienda(rs.getInt("TiendaId"), rs.getString("TiendaNombre"));
+            Persona persona = new Persona(rs.getInt("PersonaId"), rs.getString("PersonaNombre"),rs.getString("PersonaApellido"));
+            Banco banco = new Banco(0,rs.getString("BancoNombre"));
+            Tarjeta tarjeta = new Tarjeta(rs.getInt("TarjetaId"));
+            compra.setTienda(tienda);
+            compra.setPersona(persona);
+            compra.setBanco(banco);
+            compra.setTarjeta(tarjeta);
+        }
+
+        con.close();
+        stmt.close();
+        rs.close();
+        return compra;
+    }
+
     @PostMapping
     public void ingresarCompra(@RequestBody CompraDTO compra) throws SQLException {
         Connection con = dataSource.getConnection();
