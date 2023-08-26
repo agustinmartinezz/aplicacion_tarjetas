@@ -34,7 +34,8 @@ public class ComprasAPI implements ICompras {
                 "WHERE C.TiendaId = T.TiendaId\n" +
                 "AND C.TarjetaId = TA.TarjetaId\n" +
                 "AND TA.BancoId = B.BancoId\n" +
-                "AND TA.PersonaId = P.PersonaId AND CompraEliminada = " + eliminadas);
+                "AND TA.PersonaId = P.PersonaId AND CompraEliminada = " + eliminadas+ "\n" +
+                "ORDER BY C.CompraFecha DESC");
 
         while (rs.next()) {
             Compra compraAux = new Compra();
@@ -128,8 +129,8 @@ public class ComprasAPI implements ICompras {
         stmt.close();
     }
 
-    @DeleteMapping()
-    public void eliminarCompra(@RequestParam("compraId") int compraId) throws SQLException {
+    @DeleteMapping("/{compraId}")
+    public void eliminarCompra(@PathVariable int compraId) throws SQLException {
         Connection con = dataSource.getConnection();
         Statement stmt = con.createStatement();
 
