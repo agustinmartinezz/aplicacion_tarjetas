@@ -2,6 +2,7 @@ package com.tarjetas_api.tarjetas.infrastructure;
 
 import com.tarjetas_api.tarjetas.domain.Persona;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,6 +22,7 @@ public class PersonasAPI {
     @Autowired
     DataSource dataSource;
 
+    @CrossOrigin
     @GetMapping
     public List<Persona> getPersonas() throws SQLException {
         List<Persona> personas = new ArrayList<>();

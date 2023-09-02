@@ -5,6 +5,7 @@ import com.tarjetas_api.tarjetas.domain.ITarjetas;
 import com.tarjetas_api.tarjetas.domain.Persona;
 import com.tarjetas_api.tarjetas.domain.Tarjeta;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,13 +24,14 @@ public class TarjetasAPI implements ITarjetas {
     @Autowired
     DataSource dataSource;
 
+    @CrossOrigin
     @GetMapping
     public List<Tarjeta> getTarjetas() throws SQLException {
         List<Tarjeta> tarjetas = new ArrayList<>();
 
         Connection con = dataSource.getConnection();
         Statement stmt = con.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT T.TarjetaId, T.TarjetaDiaCierre, T.BancoId, B.BancoNombre, T.PersonaId, P.PersonaNombre, P.PersonaApellido FROM tarjetas AS T, bancos AS B, personas AS P WHERE T.BancoId = B.BancoId AND T.PersonaId = P.PersonaId");
+        ResultSet rs = stmt.executeQuery("SELECT T.TarjetaId, T.TarjetaDiaCierre, T.BancoId, B.BancoNombre, T.PersonaId, P.PersonaNombre, P.PersonaApellido FROM TARJETAS AS T, BANCOS AS B, PERSONAS AS P WHERE T.BancoId = B.BancoId AND T.PersonaId = P.PersonaId");
 
         while (rs.next()) {
             Tarjeta tarjetaAux = new Tarjeta();

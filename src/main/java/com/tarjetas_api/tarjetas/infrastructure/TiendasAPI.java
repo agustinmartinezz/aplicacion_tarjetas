@@ -19,6 +19,7 @@ public class TiendasAPI implements ITiendas {
     @Autowired
     DataSource dataSource;
 
+    @CrossOrigin
     @GetMapping()
     public List<Tienda> getTiendas() throws SQLException {
         List<Tienda> tiendas = new ArrayList<>();
@@ -44,6 +45,7 @@ public class TiendasAPI implements ITiendas {
         return tiendas;
     }
 
+    @CrossOrigin
     @GetMapping("/{tiendaId}")
     public Tienda getTienda(@PathVariable int tiendaId) throws SQLException {
         Connection con = dataSource.getConnection();
@@ -65,6 +67,7 @@ public class TiendasAPI implements ITiendas {
         return tienda;
     }
 
+    @CrossOrigin
     @PostMapping
     public void ingresarTienda(@RequestBody Tienda tienda) throws SQLException {
         Connection con = dataSource.getConnection();
@@ -78,6 +81,7 @@ public class TiendasAPI implements ITiendas {
         stmt.close();
     }
 
+    @CrossOrigin
     @PutMapping
     public void modificarTienda(@RequestBody Tienda tienda) throws SQLException {
         Connection con = dataSource.getConnection();

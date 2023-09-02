@@ -3,6 +3,7 @@ package com.tarjetas_api.tarjetas.infrastructure;
 import com.tarjetas_api.tarjetas.domain.Banco;
 import com.tarjetas_api.tarjetas.domain.IBancos;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,6 +23,7 @@ public class BancosAPI implements IBancos {
     @Autowired
     DataSource dataSource;
 
+    @CrossOrigin
     @GetMapping
     public List<Banco> getBancos() throws SQLException {
         List<Banco> bancos = new ArrayList<>();

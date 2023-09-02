@@ -21,6 +21,7 @@ public class ComprasAPI implements ICompras {
     @Autowired
     DataSource dataSource;
 
+    @CrossOrigin
     @GetMapping()
     public List<Compra> getCompras(@RequestParam("eliminadas") int eliminadas) throws SQLException {
         List<Compra> compras = new ArrayList<>();
@@ -63,6 +64,7 @@ public class ComprasAPI implements ICompras {
         return compras;
     }
 
+    @CrossOrigin
     @GetMapping("/{compraId}")
     public Compra getCompra(@PathVariable int compraId) throws SQLException {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -100,6 +102,7 @@ public class ComprasAPI implements ICompras {
         return compra;
     }
 
+    @CrossOrigin
     @PostMapping
     public void ingresarCompra(@RequestBody CompraDTO compra) throws SQLException {
         Connection con = dataSource.getConnection();
@@ -114,6 +117,7 @@ public class ComprasAPI implements ICompras {
         stmt.close();
     }
 
+    @CrossOrigin
     @PutMapping
     public void modificarCompra(@RequestBody CompraDTO compra) throws SQLException {
         Connection con = dataSource.getConnection();
@@ -129,6 +133,7 @@ public class ComprasAPI implements ICompras {
         stmt.close();
     }
 
+    @CrossOrigin
     @DeleteMapping("/{compraId}")
     public void eliminarCompra(@PathVariable int compraId) throws SQLException {
         Connection con = dataSource.getConnection();
